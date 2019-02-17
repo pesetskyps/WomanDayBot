@@ -1,0 +1,63 @@
+{
+    "name": "WomanDayBot",
+    "description": "",
+    "services": [
+        {
+            "type": "abs",
+            "tenantId": "37672019-c596-4ff7-9529-e668fb338c15",
+            "subscriptionId": "4c689d8b-e6f3-4d94-b3ba-745e13403fc5",
+            "resourceGroup": "WomanDayBot",
+            "serviceName": "WomanDayBot",
+            "name": "WomanDayBot",
+            "id": "1",
+            "appId": "8cba5381-d390-4a05-8824-56a93f6e5982"
+        },
+        {
+            "type": "blob",
+            "connectionString": "NapwzzpEw35wU45bh/yEew==!zfkCoubr/SHDNuDHd8tA/4eiOlurZZPwkbbWuAql2+KGy2+92njOft8bYra+0/2I24NUuEXqfHbTskhUTWECBiJxJoF1WqVt3V2MexpPoWbWWy3K7VAArJx4Qe77k4LifgQmVCmFOC9B14tgQabO++2QESaExy0DSjM/qKt89Mo1jFEiHg3Vm+2B1yBiB62aoD60LLCFMPE/hOsa5iga+w==",
+            "tenantId": "37672019-c596-4ff7-9529-e668fb338c15",
+            "subscriptionId": "4c689d8b-e6f3-4d94-b3ba-745e13403fc5",
+            "resourceGroup": "WomanDayBot",
+            "serviceName": "womandaybotb879",
+            "id": "2"
+        },
+        {
+            "type": "endpoint",
+            "appId": "",
+            "appPassword": "",
+            "endpoint": "http://localhost:3978/api/messages",
+            "name": "development",
+            "id": "3"
+        },
+        {
+            "type": "endpoint",
+            "appId": "8cba5381-d390-4a05-8824-56a93f6e5982",
+            "appPassword": "GMRYgqKVGJ5KE0XRBQ0D/A==!XFA10fHQ89NJLpKfZemmZ6FacDZaFFMmCxIwwdxAGx0=",
+            "endpoint": "https://womandaybot.azurewebsites.net/api/messages",
+            "name": "production",
+            "id": "4"
+        },
+        {
+            "type": "appInsights",
+            "instrumentationKey": "tNjsZcoZ8BzXFtbTnzaUtg==!AYDnq1KJ0CMJ85EYAZIi6Gw7nQ+BgxFMSwqUVvPqM8e3y2CqsvBdDvtj74jmRZV9",
+            "applicationId": "5b310398-166b-410e-ac32-ffd9148ca5c7",
+            "apiKeys": {},
+            "tenantId": "37672019-c596-4ff7-9529-e668fb338c15",
+            "subscriptionId": "4c689d8b-e6f3-4d94-b3ba-745e13403fc5",
+            "resourceGroup": "WomanDayBot",
+            "serviceName": "WomanDayBotxfwggj",
+            "id": "5"
+        },
+        {
+            "type": "luis",
+            "appId": "05f21b8b-f7fe-460c-9652-c20a1a2940da",
+            "authoringKey": "XNyrVVMBAoCPnRu1FOpN6g==!w2CuCqGzvMmDZkEHnkKTivb6AACcD46jw4YotpNPLdid9THlzVJ1Cg3Nb8syIeNg",
+            "version": "0.1",
+            "region": "westus",
+            "name": "MarchApp",
+            "id": "6"
+        }
+    ],
+    "padlock": "B2rnEIj5vlgdUselQ7JFaA==!XYOHJgYSsvWVzqIx8Nhae41nIird7+By0je6OjDt29FNkFnND/mfz10kk6pbiCAv",
+    "version": "2.0"
+}
