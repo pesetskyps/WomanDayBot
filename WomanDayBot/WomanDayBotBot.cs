@@ -82,10 +82,28 @@ namespace WomanDayBot
             if (activity.Type == ActivityTypes.Message)
             {
                 await dc.Context.SendActivityAsync(ff);
-                var welcomeCard = CreateAdaptiveCardAttachment();
-                var caurosel = MessageFactory.Carousel(new Attachment[] { welcomeCard, welcomeCard });
-                //var response = CreateResponse(activity, caurosel);
-                await dc.Context.SendActivityAsync(caurosel);
+                //var welcomeCard = CreateAdaptiveCardAttachment();
+                //var caurosel = MessageFactory.Carousel(new Attachment[] { welcomeCard, welcomeCard });
+
+                var reply = turnContext.Activity.CreateReply();
+
+                // Create an attachment.
+                var card = new HeroCard
+                {
+                    Text = "You can upload an image or select one of the following choices",
+                    Buttons = new List<CardAction>()
+                    {
+                        new CardAction(ActionTypes.ImBack, title: "1. Inline Attachment", value: "1"),
+                        new CardAction(ActionTypes.ImBack, title: "2. Internet Attachment", value: "2"),
+                        new CardAction(ActionTypes.ImBack, title: "3. Uploaded Attachment", value: "3"),
+                    },
+                };
+
+                // Add the card to our reply.
+                reply.Attachments = new List<Attachment>() { card.ToAttachment() };
+
+                await dc.Context.SendActivityAsync(reply, cancellationToken);
+
             }
             else if (activity.Type == ActivityTypes.ConversationUpdate)
             {
