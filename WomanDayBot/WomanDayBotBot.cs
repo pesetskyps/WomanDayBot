@@ -82,6 +82,10 @@ namespace WomanDayBot
             if (activity.Type == ActivityTypes.Message)
             {
                 await dc.Context.SendActivityAsync(ff);
+                var welcomeCard = CreateAdaptiveCardAttachment();
+                var caurosel = MessageFactory.Carousel(new Attachment[] { welcomeCard, welcomeCard });
+                //var response = CreateResponse(activity, caurosel);
+                await dc.Context.SendActivityAsync(caurosel);
             }
             else if (activity.Type == ActivityTypes.ConversationUpdate)
             {
