@@ -132,19 +132,23 @@ namespace WomanDayBot
             services.AddSingleton(userState);
 
             services.AddBot<WomanDayBotBot>(options =>
-          {
-              options.CredentialProvider = new SimpleCredentialProvider(endpointService.AppId, endpointService.AppPassword);
-
-                // Catches any errors that occur during a conversation turn and logs them to currently
-                // configured ILogger.
-                ILogger logger = _loggerFactory.CreateLogger<WomanDayBotBot>();
-
-              options.OnTurnError = async (context, exception) =>
               {
-                  logger.LogError($"Exception caught : {exception}");
-                  await context.SendActivityAsync("Sorry, it looks like something went wrong.");
-              };
-          });
+                  options.CredentialProvider = new SimpleCredentialProvider(endpointService.AppId, endpointService.AppPassword);
+
+                  // Catches any errors that occur during a conversation turn and logs them to currently
+                  // configured ILogger.
+                  ILogger logger = _loggerFactory.CreateLogger<WomanDayBotBot>();
+
+                  options.OnTurnError = async (context, exception) =>
+                  {
+                      logger.LogError($"Exception caught : {exception}");
+                      await context.SendActivityAsync("Sorry, it looks like something went wrong.");
+                  };
+              });
+            services.AddSingleton<ICardConfigurationRepository, CardConfigurationRepository>();
+            services.AddSingleton<ICardConfigurationService, CardConfigurationService>();
+            services.AddSingleton<ICardFactory, CardFactory>();
+
         }
 
         /// <summary>

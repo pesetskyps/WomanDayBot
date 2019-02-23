@@ -35,6 +35,9 @@ namespace WomanDayBot
         private readonly IStatePropertyAccessor<GreetingState> _greetingStateAccessor;
         private readonly IStatePropertyAccessor<DialogState> _dialogStateAccessor;
         private readonly ILogger<WomanDayBotBot> _logger;
+
+        public ICardFactory _cardFactory { get; }
+
         private readonly UserState _userState;
         private readonly ConversationState _conversationState;
         private readonly BotServices _services;
@@ -44,7 +47,7 @@ namespace WomanDayBot
         /// <param name="botServices">Bot services.</param>
         /// <param name="accessors">Bot State Accessors.</param>
         /// </summary>
-        public WomanDayBotBot(BotServices services, UserState userState, ConversationState conversationState, ILoggerFactory loggerFactory)
+        public WomanDayBotBot(BotServices services, UserState userState, ConversationState conversationState, ILoggerFactory loggerFactory, ICardFactory cardFactory)
         {
             _services = services ?? throw new ArgumentNullException(nameof(services));
             _userState = userState ?? throw new ArgumentNullException(nameof(userState));
@@ -53,6 +56,7 @@ namespace WomanDayBot
             _greetingStateAccessor = _userState.CreateProperty<GreetingState>(nameof(GreetingState));
             _dialogStateAccessor = _conversationState.CreateProperty<DialogState>(nameof(DialogState));
             _logger = loggerFactory.CreateLogger<WomanDayBotBot>();
+            _cardFactory = cardFactory;
 
             // Verify LUIS configuration.
             if (!_services.LuisServices.ContainsKey(LuisConfiguration))
@@ -81,29 +85,14 @@ namespace WomanDayBot
             var ff = activity.From.Name;
             if (activity.Type == ActivityTypes.Message)
             {
+                _logger.LogDebug("Received the message from {name}", activity.From.Name);
+                //return back just username
                 await dc.Context.SendActivityAsync(ff);
-                //var welcomeCard = CreateAdaptiveCardAttachment();
-                //var caurosel = MessageFactory.Carousel(new Attachment[] { welcomeCard, welcomeCard });
-
-                var reply = turnContext.Activity.CreateReply();
-
-                // Create an attachment.
-                var card = new HeroCard
-                {
-                    Text = "You can upload an image or select one of the following choices",
-                    Buttons = new List<CardAction>()
-                {
-                    new CardAction(ActionTypes.ImBack, title: "1. Inline Attachment", value: "1"),
-                    new CardAction(ActionTypes.ImBack, title: "2. Internet Attachment", value: "2"),
-                    new CardAction(ActionTypes.ImBack, title: "3. Uploaded Attachment", value: "3"),
-                },
-                };
 
                 // Add the card to our reply.
+                var reply = turnContext.Activity.CreateReply();
                 reply.AttachmentLayout = AttachmentLayoutTypes.Carousel;
-                var welcomeCard = CreateAdaptiveCardAttachment();
-                reply.Attachments = new List<Attachment>() { welcomeCard };
-
+                reply.Attachments = await _cardFactory.CreateAsync();
                 await dc.Context.SendActivityAsync(reply, cancellationToken);
 
             }
