@@ -92,15 +92,17 @@ namespace WomanDayBot
                 {
                     Text = "You can upload an image or select one of the following choices",
                     Buttons = new List<CardAction>()
-                    {
-                        new CardAction(ActionTypes.ImBack, title: "1. Inline Attachment", value: "1"),
-                        new CardAction(ActionTypes.ImBack, title: "2. Internet Attachment", value: "2"),
-                        new CardAction(ActionTypes.ImBack, title: "3. Uploaded Attachment", value: "3"),
-                    },
+                {
+                    new CardAction(ActionTypes.ImBack, title: "1. Inline Attachment", value: "1"),
+                    new CardAction(ActionTypes.ImBack, title: "2. Internet Attachment", value: "2"),
+                    new CardAction(ActionTypes.ImBack, title: "3. Uploaded Attachment", value: "3"),
+                },
                 };
 
                 // Add the card to our reply.
-                reply.Attachments = new List<Attachment>() { card.ToAttachment() };
+                reply.AttachmentLayout = AttachmentLayoutTypes.Carousel;
+                var welcomeCard = CreateAdaptiveCardAttachment();
+                reply.Attachments = new List<Attachment>() { welcomeCard };
 
                 await dc.Context.SendActivityAsync(reply, cancellationToken);
 
