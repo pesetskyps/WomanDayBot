@@ -81,7 +81,7 @@ namespace WomanDayBot
             var ff = activity.From.Name;
             if (activity.Type == ActivityTypes.Message)
             {
-               
+                await dc.Context.SendActivityAsync(ff);
             }
             else if (activity.Type == ActivityTypes.ConversationUpdate)
             {
