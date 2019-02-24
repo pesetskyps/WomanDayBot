@@ -1,50 +1,53 @@
 ﻿{
-    "type": "AdaptiveCard",
-    "body": [
+  "type": "AdaptiveCard",
+  "body": [
+    {
+      "type": "Image",
+      "url": "__ImageUrl__"
+    },
+    {
+      "type": "ColumnSet",
+      "columns": [
         {
-            "type": "ColumnSet",
-            "columns": [
-                {
-                    "type": "Column",
-                    "items": [
-                      {
-                        "type": "TextBlock",
-                        "spacing": "None",
-                        "size": "ExtraLarge",
-                        "weight": "Bolder",
-                        "text": "__TitleText__"
-                      },
-                      {
-                        "type": "TextBlock",
-                        "horizontalAlignment": "Left",
-                        "size": "Medium",
-                        "text": "__Description__",
-                        "wrap": true
-                      }
-                    ],
-                    "width": 1
-                },
-                {
-                    "type": "Column",
-                    "items": [
-                      {
-                        "type": "Image",
-                        "url": "__ImageUrl__"
-                      }
-                    ],
-                    "width": 1
-                }
-            ]
+          "type": "Column",
+          "items": [
+            {
+              "type": "TextBlock",
+              "spacing": "None",
+              "size": "ExtraLarge",
+              "weight": "Bolder",
+              "text": "__TitleText__"
+            },
+            {
+              "type": "TextBlock",
+              "spacing": "None",
+              "text": "4.2 ★★★☆ (93) · $$",
+              "isSubtle": true
+            },
+            {
+              "type": "TextBlock",
+              "size": "Small",
+              "text": "__Description__",
+              "wrap": true
+            }
+          ],
+          "width": 2
         }
-    ],
-    "actions": [
-      {
-        "type": "Action.Submit",
-        "id": "__TitleId__",
-        "title": "Заказать",
-        "iconUrl": "https://cdn1.iconfinder.com/data/icons/shoping-cart/84/ShoppingCart22-512.png"
+      ]
+    }
+  ],
+  "actions": [
+    {
+      "type": "Action.Submit",
+      "id": "__OrderType__",
+      "title": "Заказать",
+      "iconUrl": "https://cdn1.iconfinder.com/data/icons/shoping-cart/84/ShoppingCart22-256.png",
+      "data": {
+        "orderType": "__OrderType__",
+        "orderCategory": "__OrderCategory__"
       }
-    ],
-    "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
-    "version": "1.0"
+    }
+  ],
+  "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+  "version": "1.0"
 }

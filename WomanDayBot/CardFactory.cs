@@ -41,7 +41,8 @@ namespace WomanDayBot
             {
                 var card = adaptiveCardTemplate;
                 card = card.Replace(@"__TitleText__", configuration.TitleText);
-                card = card.Replace(@"__TitleId__", configuration.TitleId);
+                card = card.Replace(@"__OrderType__", configuration.OrderType.ToString());
+                card = card.Replace(@"__OrderCategory__", configuration.OrderCategory.ToString());
                 card = card.Replace(@"__Description__", configuration.Description);
                 card = card.Replace(@"__ImageUrl__", configuration.ImageUrl);
                 var adaptiveCard = new Attachment()
