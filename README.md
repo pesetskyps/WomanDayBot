@@ -4,7 +4,7 @@
 - order save to cosmosdb
 
 # Prerequisites
-- .NET 2.1 [here] [43]
+- .NET 2.1 [here][43]
 - Bot Framework Emulator [here][6]
 - CosmosDB local database [here][42]
 
