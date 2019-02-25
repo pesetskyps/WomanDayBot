@@ -7,7 +7,16 @@
 - .NET 2.1 [here] [43]
 - Bot Framework Emulator [here][6]
 - CosmosDB local database [here][42]
- 
+
+# Create CosmosDB database
+- go to https://localhost:8081/_explorer/index.html
+- Create database WomanDayBot
+- Create Collection
+    - Database id: WomanDayBot
+    - Collection Id: Orders
+    - Partition key: /oderId
+    - Throughput: 10000
+    - Unique keys: /orderId
 # WomanDayBot
 
 - Run the bot from a terminal or from Visual Studio, choose option A or B.
