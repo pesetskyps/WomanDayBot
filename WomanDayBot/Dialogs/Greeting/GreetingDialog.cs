@@ -84,8 +84,8 @@ namespace WomanDayBot
             // Return the collected information to the parent context.
             var userData = new UserData
             {
-                Name = Name,
-                Room = Room
+                Name = (string)stepContext.Values[Name],
+                Room = (string)stepContext.Values[Room]
             };
 
             return await stepContext.EndDialogAsync(userData, cancellationToken);
