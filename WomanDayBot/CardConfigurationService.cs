@@ -1,26 +1,25 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace WomanDayBot
 {
-    public interface ICardConfigurationService
-    {
-        Task<List<CardConfiguration>> ConfigureAsync();
-    }
-    public class CardConfigurationService : ICardConfigurationService
-    {
-        private readonly ICardConfigurationRepository _cardConfigurationRepository;
+  public interface ICardConfigurationService
+  {
+    Task<List<CardConfiguration>> GetConfigurationsAsync();
+  }
 
-        public CardConfigurationService(ICardConfigurationRepository cardConfigurationRepository)
-        {
-            _cardConfigurationRepository = cardConfigurationRepository;
-        }
+  public class CardConfigurationService : ICardConfigurationService
+  {
+    private readonly ICardConfigurationRepository _cardConfigurationRepository;
 
-        public async Task<List<CardConfiguration>> ConfigureAsync()
-        {
-            return  await _cardConfigurationRepository.GetAsync();
-        }
+    public CardConfigurationService(ICardConfigurationRepository cardConfigurationRepository)
+    {
+      _cardConfigurationRepository = cardConfigurationRepository;
     }
+
+    public async Task<List<CardConfiguration>> GetConfigurationsAsync()
+    {
+      return await _cardConfigurationRepository.GetAsync();
+    }
+  }
 }

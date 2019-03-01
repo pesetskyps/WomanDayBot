@@ -3,13 +3,13 @@
 
 namespace WomanDayBot
 {
-    /// <summary>
-    /// User state properties for Greeting.
-    /// </summary>
-    public class GreetingState
-    {
-        public string Name { get; set; }
+  /// <summary>
+  /// User state properties for Greeting.
+  /// </summary>
+  public class GreetingState
+  {
+    public string Name { get; set; }
 
-        public string City { get; set; }
-    }
+    public string City { get; set; }
+  }
 }
