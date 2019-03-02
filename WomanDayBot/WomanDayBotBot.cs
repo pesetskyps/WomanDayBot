@@ -27,13 +27,13 @@ namespace WomanDayBot
         private GreetingsDialog _greetingsDialog;
         private readonly ILogger<WomanDayBotBot> _logger;
         public ICardFactory _cardFactory { get; }
-        private readonly OrderRepository<Order> _orderRepository;
+        private readonly OrderRepository _orderRepository;
         private readonly UserState _userState;
         private readonly ConversationState _conversationState;
         private readonly BotServices _services;
 
         public WomanDayBotBot(BotServices services, UserState userState, ConversationState conversationState, 
-            ILoggerFactory loggerFactory, ICardFactory cardFactory, WomanDayBotAccessors womanDayBotAccessors, OrderRepository<Order> orderRepository)
+            ILoggerFactory loggerFactory, ICardFactory cardFactory, WomanDayBotAccessors womanDayBotAccessors, OrderRepository orderRepository)
         {
             _services = services ?? throw new ArgumentNullException(nameof(services));
             _userState = userState ?? throw new ArgumentNullException(nameof(userState));

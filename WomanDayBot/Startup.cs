@@ -126,7 +126,7 @@ namespace WomanDayBot
 
             IStorage dataStore = new CosmosDbStorage(cosmosDbStorageOptions);
 
-            services.AddSingleton(new OrderRepository<Order>(cosmosDbStorageOptions));
+            services.AddSingleton(new OrderRepository(cosmosDbStorageOptions));
 
             // Create and add conversation state.
             var conversationState = new ConversationState(dataStore);
@@ -138,8 +138,6 @@ namespace WomanDayBot
             services.AddBot<WomanDayBotBot>(options =>
             {
                 options.CredentialProvider = new SimpleCredentialProvider(endpointService.AppId, endpointService.AppPassword);
-
-
 
                 // Catches any errors that occur during a conversation turn and logs them to currently
                 // configured ILogger.
@@ -166,7 +164,7 @@ namespace WomanDayBot
                 };
             });
 
-
+            services.AddMvc();
         }
 
         /// <summary>
@@ -177,11 +175,23 @@ namespace WomanDayBot
         /// </summary>
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
         {
+            if (env.IsDevelopment())
+            {
+                app.UseDeveloperExceptionPage();
+            }
+            else
+            {
+                app.UseExceptionHandler("/Error");
+                app.UseHsts();
+            }
+
             _loggerFactory = loggerFactory;
 
             app.UseDefaultFiles()
                 .UseStaticFiles()
                 .UseBotFramework();
+
+            app.UseMvc();
         }
     }
 }
