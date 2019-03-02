@@ -1,10 +1,12 @@
-﻿using Microsoft.Bot.Builder;
+﻿using System;
+using Microsoft.Bot.Builder;
 using Microsoft.Bot.Builder.Dialogs;
 using Microsoft.Bot.Builder.Dialogs.Choices;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using WomanDayBot.Orders;
 using WomanDayBot.Users;
 
 namespace WomanDayBot
@@ -17,9 +19,11 @@ namespace WomanDayBot
 
         private const string NamePromt = "namePromt";
         private const string RoomPromt = "roomPromt";
+        private const string CategoryPromt = "categoryPromt";
 
         // Define keys for tracked values within the dialog.
         private const string Name = "name";
+        private const string Category = "category";
         private const string Room = "room";
 
         /// <summary>Creates a new instance of this dialog set.</summary>
@@ -29,16 +33,36 @@ namespace WomanDayBot
         {
             // Add the text prompt to the dialog set.
             Add(new TextPrompt(NamePromt));
+            Add(new ChoicePrompt(CategoryPromt));
             Add(new ChoicePrompt(RoomPromt));
+            
 
             var steps = new WaterfallStep[]
             {
                 PromtForNameAsync,
+                PromtForCategoryAsync,
                 PromtForRoomAsync,
                 AcknowledgeUserDataAsync
             };
             // Define the main dialog and add it to the set.
             Add(new WaterfallDialog(MainDialog, steps));
+        }
+
+        private async Task<DialogTurnResult> PromtForCategoryAsync(WaterfallStepContext stepContext, CancellationToken cancellationToken)
+        {
+          // Record the name information in the current dialog state.
+          var name = (string)stepContext.Result;
+          stepContext.Values[Name] = name;
+          // Prompt for the party size. The result of the prompt is returned to the next step of the waterfall.
+          return await stepContext.PromptAsync(
+            CategoryPromt,
+            new PromptOptions
+            {
+              Prompt = MessageFactory.Text($"{name}, Пожалуйста выберите категорию"),
+              RetryPrompt = MessageFactory.Text($"{name}, Выбери категорию, блин!"),
+              Choices = ChoiceFactory.ToChoices(Enum.GetNames(typeof(OrderCategory)))
+            },
+            cancellationToken);
         }
 
         private async Task<DialogTurnResult> PromtForNameAsync(WaterfallStepContext stepContext, CancellationToken cancellationToken = default(CancellationToken))
@@ -57,8 +81,8 @@ namespace WomanDayBot
         private async Task<DialogTurnResult> PromtForRoomAsync(WaterfallStepContext stepContext, CancellationToken cancellationToken = default(CancellationToken))
         {
             // Record the name information in the current dialog state.
-            var name = (string)stepContext.Result;
-            stepContext.Values[Name] = name;
+            var category = (stepContext.Result as FoundChoice).Value;
+            stepContext.Values[Category] = category;
 
             // Prompt for the party size. The result of the prompt is returned to the next step of the waterfall.
             return await stepContext.PromptAsync(
@@ -80,12 +104,13 @@ namespace WomanDayBot
 
             // Send an acknowledgement to the user.
             await stepContext.Context.SendActivityAsync("Ну теперь-то мы с тобой зажжем!", cancellationToken: cancellationToken);
-
+            Enum.TryParse<OrderCategory>(stepContext.Values[Category].ToString(), true, out var category);
             // Return the collected information to the parent context.
             var userData = new UserData
             {
                 Name = (string)stepContext.Values[Name],
-                Room = (string)stepContext.Values[Room]
+                Room = (string)stepContext.Values[Room],
+                OrderCategory = category
             };
 
             return await stepContext.EndDialogAsync(userData, cancellationToken);

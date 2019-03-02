@@ -3,7 +3,7 @@
   "body": [
     {
       "type": "Image",
-      "url": "__ImageUrl__"
+      "url": ""
     },
     {
       "type": "ColumnSet",
@@ -16,7 +16,7 @@
               "spacing": "None",
               "size": "ExtraLarge",
               "weight": "Bolder",
-              "text": "__TitleText__"
+              "text": ""
             },
             {
               "type": "TextBlock",
@@ -27,7 +27,7 @@
             {
               "type": "TextBlock",
               "size": "Small",
-              "text": "__Description__",
+              "text": "",
               "wrap": true
             }
           ],
@@ -39,12 +39,12 @@
   "actions": [
     {
       "type": "Action.Submit",
-      "id": "__OrderType__",
+      "id": "",
       "title": "Заказать",
       "iconUrl": "https://cdn1.iconfinder.com/data/icons/shoping-cart/84/ShoppingCart22-256.png",
       "data": {
-        "orderType": "__OrderType__",
-        "orderCategory": "__OrderCategory__"
+        "orderType": "",
+        "orderCategory": ""
       }
     }
   ],
