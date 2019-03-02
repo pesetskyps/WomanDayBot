@@ -52,115 +52,60 @@ namespace WomanDayBot
 
             // Establish context for our dialog from the turn context.
             var _dialogContext = await _greetingsDialog.CreateContextAsync(turnContext, cancellationToken);
-            
+
             if (_dialogContext.ActiveDialog == null)
             {
-                if((userData.Name == null) || userData.Room == null)
+                if ((userData.Name == null) || userData.Room == null)
                 {
                     await _dialogContext.BeginDialogAsync("main", null, cancellationToken);
                 }
                 else
                 {
-                    await turnContext.SendActivityAsync($"Привет {userData.Name}. Повеселимся? :)",cancellationToken: cancellationToken);
+                    await SendCardsOrRegisterOrder(turnContext, cancellationToken, _dialogContext, userData);
                 }
             }
             else
             {
-                // Continue the dialog.
                 var dialogTurnResult = await _dialogContext.ContinueDialogAsync(cancellationToken);
-
-                // If the dialog completed this turn, record the reservation info.
                 if (dialogTurnResult.Status is DialogTurnStatus.Complete)
                 {
                     userData = (UserData)dialogTurnResult.Result;
+
                     await Accessors.UserDataAccessor.SetAsync(
                         turnContext,
                         userData,
                         cancellationToken);
 
-                    await turnContext.SendActivityAsync($"Привет {userData.Name}. Повеселимся? :) Заказывай штуки-дрюки в комнату {userData.Room}. Фсе принесут, рррр", cancellationToken: cancellationToken);
+                    await SendCardsOrRegisterOrder(turnContext, cancellationToken, _dialogContext, userData);
                 }
             }
 
             // Persist any changes to storage.
             await Accessors.UserState.SaveChangesAsync(turnContext, false, cancellationToken);
             await Accessors.ConversationState.SaveChangesAsync(turnContext, false, cancellationToken);
+        }
 
-
-
-            ///old
-            var activityOld = turnContext.Activity;
-
-            var ff = activityOld.From.Name;
-            if (activityOld.Type == ActivityTypes.Message)
+        private async Task SendCardsOrRegisterOrder(ITurnContext turnContext, CancellationToken cancellationToken,
+           DialogContext dialogContext, UserData userData)
+        {
+            if (dialogContext.Context.Activity.Value != null)
             {
+                var order = JsonConvert.DeserializeObject<Order>(dialogContext.Context.Activity.Value.ToString());
+                order.Id = Guid.NewGuid();
+                order.RequestTime = DateTime.Now;
+                order.UserData = userData;
+                var orderDoc = await _orderRepository.CreateItemAsync(order);
+                _logger.LogDebug("Created {orderDoc}", orderDoc);
+            }
 
-                _logger.LogDebug("Received the message from {name}", activityOld.From.Name);
-                //return back just username
-                await _dialogContext.Context.SendActivityAsync(ff);
-
-                if(_dialogContext.Context.Activity.Value != null)
-                {
-                    var order = JsonConvert.DeserializeObject<Order>(_dialogContext.Context.Activity.Value.ToString());
-                    order.Id = Guid.NewGuid();
-                    order.RequestTime = DateTime.Now;
-                    order.UserData = userData;
-                    var orderDoc = await _orderRepository.CreateItemAsync(order);
-                    _logger.LogDebug("Created {orderDoc}", orderDoc);
-                }
-                
-
+            if (turnContext.Activity.Type == ActivityTypes.Message)
+            {
                 // Add the card to our reply.
                 var reply = turnContext.Activity.CreateReply();
                 reply.AttachmentLayout = AttachmentLayoutTypes.Carousel;
                 reply.Attachments = await _cardFactory.CreateAsync();
-                await _dialogContext.Context.SendActivityAsync(reply, cancellationToken);
-
+                await dialogContext.Context.SendActivityAsync(reply, cancellationToken);
             }
-            else if (activityOld.Type == ActivityTypes.ConversationUpdate)
-            {
-                if (activityOld.MembersAdded != null)
-                {
-                    // Iterate over all new members added to the conversation.
-                    foreach (var member in activityOld.MembersAdded)
-                    {
-                        // Greet anyone that was not the target (recipient) of this message.
-                        // To learn more about Adaptive Cards,
-                        // See https://aka.ms/msbot-adaptivecards for more details.
-                        if (member.Id != activityOld.Recipient.Id)
-                        {
-                            //var welcomeCard = CreateAdaptiveCardAttachment();
-                            //var caurosel = MessageFactory.Carousel(new Attachment[] { welcomeCard, welcomeCard });
-                            ////var response = CreateResponse(activity, caurosel);
-                            //await dc.Context.SendActivityAsync(caurosel);
-                        }
-                    }
-                }
-            }
-
-            await _conversationState.SaveChangesAsync(turnContext);
-            await _userState.SaveChangesAsync(turnContext);
-        }
-
-        // Create an attachment message response.
-        private Activity CreateResponse(Activity activity, Attachment attachment)
-        {
-            var response = activity.CreateReply();
-            response.Attachments = new List<Attachment>() { attachment };
-            return response;
-        }
-
-        // Load attachment from file.
-        private Attachment CreateAdaptiveCardAttachment()
-        {
-            string[] paths = { ".", "Dialogs", "Welcome", "Resources", "welcomeCard.json" };
-            string fullPath = Path.Combine(paths);
-            var adaptiveCard = File.ReadAllText(fullPath);
-            return new Attachment()
-            {
-                ContentType = "application/vnd.microsoft.card.adaptive",
-                Content = JsonConvert.DeserializeObject(adaptiveCard),
-            };
         }
     }
 }

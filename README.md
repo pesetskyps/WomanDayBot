@@ -9,6 +9,7 @@
 - CosmosDB local database [here][42]
 
 # Create CosmosDB database
+- start CosmosDB emulator
 - go to https://localhost:8081/_explorer/index.html
 - Create database WomanDayBot
 - Create Collection
