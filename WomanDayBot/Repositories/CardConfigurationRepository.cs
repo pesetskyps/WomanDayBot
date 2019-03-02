@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Bot.Builder.Azure;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -6,25 +7,10 @@ using WomanDayBot.Orders;
 
 namespace WomanDayBot
 {
-    public interface ICardConfigurationRepository
+    public class CardConfigurationRepository : CosmosDbRepository<CardConfiguration>
     {
-        Task<List<CardConfiguration>> GetAsync();
-    }
-    public class CardConfigurationRepository : ICardConfigurationRepository
-    {
-        public async Task<List<CardConfiguration>> GetAsync()
-        {
-            return new List<CardConfiguration>
-            {
-                new CardConfiguration("https://picsum.photos/300?image=222",
-                    "A bit of Champaine for miss!","Dear women. Oh common! There should be the day to feel yourself relaxed. Only today!",
-                    OrderType.Champaine, 
-                    OrderCategory.Alcohol),
-                new CardConfiguration("https://picsum.photos/300?image=221",
-                    "Morning Coffee","If you have at least one eye opened. Just press the button and fresh coffee from our home coffee machine will be at your desk!",
-                    OrderType.Coffee, 
-                    OrderCategory.NonAlcohol)
-            };
-        }
+        private const string DatabaseId = "WomanDayBot";
+        private const string CollectionId = "CardConfiguration";
+        public CardConfigurationRepository(CosmosDbStorageOptions configurationOptions) : base(configurationOptions, DatabaseId, CollectionId){}
     }
 }

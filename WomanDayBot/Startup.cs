@@ -149,7 +149,7 @@ namespace WomanDayBot
                     await context.SendActivityAsync("Черт, эти программисты опять налажали! Неведома ошибка");
                 };
             });
-            services.AddSingleton<ICardConfigurationRepository, CardConfigurationRepository>();
+            services.AddSingleton<CardConfigurationRepository>();
             services.AddSingleton<ICardConfigurationService, CardConfigurationService>();
             services.AddSingleton<ICardFactory, CardFactory>();
 

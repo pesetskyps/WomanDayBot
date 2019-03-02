@@ -7,20 +7,20 @@ namespace WomanDayBot
 {
     public interface ICardConfigurationService
     {
-        Task<List<CardConfiguration>> ConfigureAsync();
+        Task<IEnumerable<CardConfiguration>> ConfigureAsync();
     }
     public class CardConfigurationService : ICardConfigurationService
     {
-        private readonly ICardConfigurationRepository _cardConfigurationRepository;
+        private readonly CardConfigurationRepository _cardConfigurationRepository;
 
-        public CardConfigurationService(ICardConfigurationRepository cardConfigurationRepository)
+        public CardConfigurationService(CardConfigurationRepository cardConfigurationRepository)
         {
             _cardConfigurationRepository = cardConfigurationRepository;
         }
 
-        public async Task<List<CardConfiguration>> ConfigureAsync()
+        public async Task<IEnumerable<CardConfiguration>> ConfigureAsync()
         {
-            return  await _cardConfigurationRepository.GetAsync();
+            return  await _cardConfigurationRepository.GetItemsAsync();
         }
     }
 }
