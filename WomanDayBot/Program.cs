@@ -8,32 +8,24 @@ using Microsoft.Extensions.Logging;
 
 namespace WomanDayBot
 {
-    public class Program
+  public class Program
+  {
+    public static void Main(string[] args)
     {
-        public static void Main(string[] args)
-        {
-            BuildWebHost(args).Run();
-        }
-
-        public static IWebHost BuildWebHost(string[] args) =>
-            WebHost.CreateDefaultBuilder(args)
-                .ConfigureLogging((hostingContext, logging) =>
-                {
-                    // Add Azure Logging
-                    logging.AddAzureWebAppDiagnostics();
-
-                    // Other Loggers.
-                    // There are other logging options available:
-                    // https://docs.microsoft.com/en-us/aspnet/core/fundamentals/logging/?view=aspnetcore-2.2
-                    // logging.AddDebug();
-                    // logging.AddConsole();
-                })
-
-                // Application Insights.
-                // An alternative logging and metrics service for your application.
-                // https://azure.microsoft.com/en-us/services/application-insights/
-                // .UseApplicationInsights()
-                .UseStartup<Startup>()
-                .Build();
+      BuildWebHost(args).Run();
     }
+
+    public static IWebHost BuildWebHost(string[] args)
+    {
+      return WebHost
+        .CreateDefaultBuilder(args)
+        .ConfigureLogging((hostingContext, logging) =>
+        {
+          logging.AddAzureWebAppDiagnostics();
+        })
+        // .UseApplicationInsights()
+        .UseStartup<Startup>()
+        .Build();
+    }
+  }
 }
