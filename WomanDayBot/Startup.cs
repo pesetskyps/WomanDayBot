@@ -1,8 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved.
-// Licensed under the MIT License.
-// Generated with `dotnet new corebot` vX.X.X
-
-using System;
+﻿using System;
 using System.IO;
 using System.Linq;
 using Microsoft.AspNetCore.Builder;
@@ -23,21 +19,11 @@ using WomanDayBot.Users;
 
 namespace WomanDayBot
 {
-    /// <summary>
-    /// The Startup class configures services and the app's request pipeline.
-    /// </summary>
     public class Startup
     {
         private ILoggerFactory _loggerFactory;
         private bool _isProduction = false;
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="Startup"/> class.
-        /// This method gets called by the runtime. Use this method to add services to the container.
-        /// For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940.
-        /// <param name="env">Provides information about the web hosting environment an application is running in.</param>
-        /// </summary>
-        //  See https://docs.microsoft.com/en-us/aspnet/core/fundamentals/startup?view=aspnetcore-2.1 for startup fundamentals.
         public Startup(IHostingEnvironment env)
         {
             _isProduction = env.IsProduction();
@@ -51,18 +37,8 @@ namespace WomanDayBot
             Configuration = builder.Build();
         }
 
-        /// <summary>
-        /// Gets the configuration that represents a set of key/value application configuration properties.
-        /// <value>
-        /// The <see cref="IConfiguration"/> that represents a set of key/value application configuration properties.
-        /// </value>
-        /// </summary>
         public IConfiguration Configuration { get; }
 
-        /// <summary>
-        /// This method gets called by the runtime. Use this method to add services to the container.
-        /// <param name="services">Specifies the contract for a <see cref="IServiceCollection"/> of service descriptors.</param>
-        /// </summary>
         public void ConfigureServices(IServiceCollection services)
         {
             var secretKey = Configuration.GetSection("botFileSecret")?.Value;
@@ -81,10 +57,10 @@ namespace WomanDayBot
             catch
             {
                 var msg = @"Error reading bot file. Please ensure you have valid botFilePath and botFileSecret set for your environment.
-    - You can find the botFilePath and botFileSecret in the Azure App Service application settings.
-    - If you are running this bot locally, consider adding a appsettings.json file with botFilePath and botFileSecret.
-    - See https://aka.ms/about-bot-file to learn more about .bot file its use and bot configuration.
-    ";
+                    - You can find the botFilePath and botFileSecret in the Azure App Service application settings.
+                    - If you are running this bot locally, consider adding a appsettings.json file with botFilePath and botFileSecret.
+                    - See https://aka.ms/about-bot-file to learn more about .bot file its use and bot configuration.
+                    ";
                 throw new InvalidOperationException(msg);
             }
 
@@ -107,10 +83,6 @@ namespace WomanDayBot
             {
                 throw new InvalidOperationException($"The .bot file does not contain an endpoint with name '{environment}'.");
             }
-
-            // Memory Storage is for local bot debugging only. When the bot
-            // is restarted, everything stored in memory will be gone.
-            //IStorage dataStore = new MemoryStorage();
 
             // Use persistent storage and create state management objects.
             var cosmosSettings = Configuration.GetSection("CosmosDB");
@@ -139,13 +111,11 @@ namespace WomanDayBot
             {
                 options.CredentialProvider = new SimpleCredentialProvider(endpointService.AppId, endpointService.AppPassword);
 
-                // Catches any errors that occur during a conversation turn and logs them to currently
-                // configured ILogger.
                 ILogger logger = _loggerFactory.CreateLogger<WomanDayBotBot>();
 
                 options.OnTurnError = async (context, exception) =>
                 {
-                    logger.LogError($"Exception caught : {exception}");
+                    logger.LogError(exception, "Unhandled exception");
                     await context.SendActivityAsync("Черт, эти программисты опять налажали! Неведома ошибка");
                 };
             });
@@ -159,39 +129,19 @@ namespace WomanDayBot
 
                 return new WomanDayBotAccessors(userState, conversationState)
                 {
-                    UserDataAccessor = userState.CreateProperty<UserData>("UserDataBot.UserData"),
-                    DialogStateAccessor = conversationState.CreateProperty<DialogState>("UserDataBot.DialogState"),
+                    UserDataAccessor = userState.CreateProperty<UserData>("WomanDayBot.UserData"),
+                    DialogStateAccessor = conversationState.CreateProperty<DialogState>("WomanDayBot.DialogState"),
                 };
             });
-
-            services.AddMvc();
         }
 
-        /// <summary>
-        /// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        /// <param name="app">Application Builder.</param>
-        /// <param name="env">Hosting Environment.</param>
-        /// <param name="loggerFactory">The <see cref="ILoggerFactory"/> to create logger object for tracing.</param>
-        /// </summary>
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
         {
-            if (env.IsDevelopment())
-            {
-                app.UseDeveloperExceptionPage();
-            }
-            else
-            {
-                app.UseExceptionHandler("/Error");
-                app.UseHsts();
-            }
-
             _loggerFactory = loggerFactory;
 
             app.UseDefaultFiles()
                 .UseStaticFiles()
                 .UseBotFramework();
-
-            app.UseMvc();
         }
     }
 }
