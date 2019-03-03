@@ -1,15 +1,18 @@
-[{
-  "cardconfigid": "517b65ed-b757-47b1-b948-d649fab2bd96",
-  "ImageUrl": "https://picsum.photos/300?image=222",
-  "TitleText": "Шампанское для красоточки",
-  "Description": "Немного шампусика для разгона. М?",
-  "OrderType": "Champaine",
-  "OrderCategory": "Alcohol"
-}, {
-  "cardconfigid": "59f9c092-f323-4301-b359-5a8f05630864",
-  "ImageUrl": "https://picsum.photos/300?image=221",
-  "TitleText": "Кофе от мачо",
-  "Description": "На вкус и запах как настоящий мачо",
-  "OrderType": "Coffee",
-  "OrderCategory": "NonAlcohol"
-}]
+[
+  {
+    "cardconfigid": "517b65ed-b757-47b1-b948-d649fab2bd96",
+    "ImageUrl": "https://picsum.photos/300?image=222",
+    "TitleText": "Шампанское для красоточки",
+    "Description": "Немного шампусика для разгона. М?",
+    "OrderType": "Champaine",
+    "OrderCategory": "Alcohol"
+  },
+  {
+    "cardconfigid": "59f9c092-f323-4301-b359-5a8f05630864",
+    "ImageUrl": "https://picsum.photos/300?image=221",
+    "TitleText": "Кофе от мачо",
+    "Description": "На вкус и запах как настоящий мачо",
+    "OrderType": "Coffee",
+    "OrderCategory": "NonAlcohol"
+  }
+]
