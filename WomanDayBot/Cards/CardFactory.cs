@@ -28,11 +28,11 @@ namespace WomanDayBot
       return this.CreateAdaptiveCardAttachmentAsync();
     }
 
-    private async Task<List<Attachment>> CreateAdaptiveCardAttachmentAsync()
-    {
-      string[] paths = { ".", "Dialogs", "Welcome", "Resources", "orderCard.json" };
-      var fullPath = Path.Combine(paths);
-      var adaptiveCardTemplate = File.ReadAllText(fullPath);
+        private async Task<List<Attachment>> CreateAdaptiveCardAttachmentAsync()
+        {
+            string[] paths = { ".", "Cards", "Templates", "orderCard.json" };
+            string fullPath = Path.Combine(paths);
+            var adaptiveCardTemplate = File.ReadAllText(fullPath);
 
       var cardConfigurations = await _cardConfigurationService.GetConfigurationsAsync();
       var cards = new List<Attachment>();

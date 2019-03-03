@@ -4,6 +4,10 @@ using System.Threading.Tasks;
 using Microsoft.Bot.Builder;
 using Microsoft.Bot.Builder.Dialogs;
 using Microsoft.Bot.Builder.Dialogs.Choices;
+using System.Collections.Generic;
+using System.Text.RegularExpressions;
+using System.Threading;
+using System.Threading.Tasks;
 using WomanDayBot.Users;
 
 namespace WomanDayBot
@@ -27,7 +31,7 @@ namespace WomanDayBot
         : base(dialogState)
     {
       // Add the text prompt to the dialog set.
-      Add(new TextPrompt(NamePromt));
+      Add(new TextPrompt(NamePromt, UserNamePromptValidatorAsync));
       Add(new ChoicePrompt(RoomPromt));
 
       var steps = new WaterfallStep[]
@@ -52,6 +56,47 @@ namespace WomanDayBot
             RetryPrompt = MessageFactory.Text("Да ладно, ну скажи имечко?")
           },
           cancellationToken);
+    }
+
+    /// <summary>
+    /// User name validator
+    /// </summary>
+    /// <param name="promptContext">String that need to validate</param>
+    /// <param name="cancellationToken">Cancellation token for async operations</param>
+    /// <returns>True if name valid and false if not valid</returns>
+    private async Task<bool> UserNamePromptValidatorAsync(
+   PromptValidatorContext<string> promptContext,
+   CancellationToken cancellationToken = default(CancellationToken))
+    {
+      if (!promptContext.Recognized.Succeeded)
+      {
+        await promptContext.Context.SendActivityAsync(
+            "Извините, но я вас не понял. Пожалуйста, введите своё имя.",
+            cancellationToken: cancellationToken);
+
+        return false;
+      }
+
+      var value = promptContext.Recognized.Value;
+
+      Regex regex = new Regex(@"(\w)+");
+
+      if (value != null)
+      {
+        if (regex.IsMatch(value))
+        {
+          return true;
+        }
+      }
+
+      await promptContext.Context.SendActivitiesAsync(
+                  new[]
+                  {
+                    MessageFactory.Text("К сожалению, я не могу распознать ваше имя."),
+                    promptContext.Options.RetryPrompt,
+                  },
+                  cancellationToken);
+      return false;
     }
 
     private async Task<DialogTurnResult> PromtForRoomAsync(WaterfallStepContext stepContext, CancellationToken cancellationToken = default(CancellationToken))

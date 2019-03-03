@@ -15,22 +15,23 @@
 - Create Collection
     - Database id: WomanDayBot
     - Collection Id: Orders
-    - Partition key: /oderId
+    - Partition key: /orderId
     - Throughput: 10000
     - Unique keys: /orderId
-# WomanDayBot
+- Create Collection
+    - Database id: WomanDayBot
+    - Collection Id: CardConfiguration
+    - Partition key: /cardconfigid
+    - Throughput: 10000
+    - Unique keys: /cardconfigid
+- Upload Documents for local development localted in the .\WomanDayBot\Data\CardConfiguration.json (upload may hand locally, create docs one by one then
+)
 
-- Run the bot from a terminal or from Visual Studio, choose option A or B.
-    A) From a terminal
-    ```bash
-    # run the bot
-    dotnet run
-    ```
-    B) Or from Visual Studio
+# WomanDayBot
+Run the bot from a terminal or from Visual Studio.
     - Launch Visual Studio
     - File -> Open -> Project/Solution
-    - Navigate to `<your_project_folder>/WomanDayBot` folder
-    - Select `WomanDayBot.csproj` file
+    - Select `<your_project_folder>/WomanDayBot.sln` file
     - Press `F5` to run the project
 
 # Testing the bot using Bot Framework Emulator **v4**
@@ -43,6 +44,7 @@
 - File -> Open Bot Configuration
 - Navigate to `<your_project_folder>/WomanDayBot` folder
 - Select `WomanDayBot.bot` file
+- Secret is stored in Azure Bot settings (ask in skype chat)
 
 # Further reading
 - [Bot Framework Documentation][20]
