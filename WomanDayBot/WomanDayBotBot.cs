@@ -78,7 +78,7 @@ namespace WomanDayBot
 
                     await SendCardsOrRegisterOrder(turnContext, cancellationToken, _dialogContext, userData);
                 }
-            }
+                  }
 
             // Persist any changes to storage.
             await Accessors.UserState.SaveChangesAsync(turnContext, false, cancellationToken);
@@ -103,7 +103,7 @@ namespace WomanDayBot
                 // Add the card to our reply.
                 var reply = turnContext.Activity.CreateReply();
                 reply.AttachmentLayout = AttachmentLayoutTypes.Carousel;
-                reply.Attachments = await _cardFactory.CreateAsync();
+                reply.Attachments = await _cardFactory.WithCategory(userData.OrderCategory).CreateAsync();
                 await dialogContext.Context.SendActivityAsync(reply, cancellationToken);
             }
         }

@@ -7,6 +7,7 @@ namespace WomanDayBot.Orders
 {
     public enum OrderCategory
     {
+        All,
         Alcohol,
         NonAlcohol,
         Food,

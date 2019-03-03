@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using WomanDayBot.Orders;
 
 namespace WomanDayBot.Users
 {
@@ -12,5 +13,6 @@ namespace WomanDayBot.Users
     {
         public string Name { get; set; }
         public string Room { get; set; }
+        public OrderCategory OrderCategory { get; set; }
     }
 }
