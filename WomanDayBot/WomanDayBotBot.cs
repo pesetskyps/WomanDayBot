@@ -60,7 +60,7 @@ namespace WomanDayBot
 
       if (_dialogContext.ActiveDialog == null)
       {
-        if ((userData.Name == null) || userData.Room == null)
+        if (string.IsNullOrEmpty(userData.Name) || string.IsNullOrEmpty(userData.Room))
         {
           await _dialogContext.BeginDialogAsync(GreetingsDialog.MainDialog, null, cancellationToken);
         }
