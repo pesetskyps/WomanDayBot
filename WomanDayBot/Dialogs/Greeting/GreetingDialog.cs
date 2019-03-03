@@ -75,7 +75,7 @@ namespace WomanDayBot
 
       var value = promptContext.Recognized.Value;
 
-      Regex regex = new Regex(@"^[A-Za-zа-яА-Я0-9]+(?:[ _@.][A-Za-zа-яА-Я0-9]+)");
+      Regex regex = new Regex(@"(\w)+");
 
       if (value != null)
       {
