@@ -1,4 +1,4 @@
-﻿namespace WomanDayBot.Orders
+﻿namespace WomanDayBot.Models
 {
   public enum OrderType
   {

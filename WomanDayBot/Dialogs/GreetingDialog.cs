@@ -1,16 +1,13 @@
 ﻿using System.Collections.Generic;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Bot.Builder;
 using Microsoft.Bot.Builder.Dialogs;
 using Microsoft.Bot.Builder.Dialogs.Choices;
-using System.Collections.Generic;
-using System.Text.RegularExpressions;
-using System.Threading;
-using System.Threading.Tasks;
-using WomanDayBot.Users;
+using WomanDayBot.Models;
 
-namespace WomanDayBot
+namespace WomanDayBot.Dialogs
 {
   /// <summary>Defines a dialog for collecting a user's name.</summary>
   public class GreetingsDialog : DialogSet
@@ -31,7 +28,7 @@ namespace WomanDayBot
         : base(dialogState)
     {
       // Add the text prompt to the dialog set.
-      Add(new TextPrompt(NamePromt, UserNamePromptValidatorAsync));
+      Add(new TextPrompt(NamePromt, this.UserNamePromptValidatorAsync));
       Add(new ChoicePrompt(RoomPromt));
 
       var steps = new WaterfallStep[]
@@ -45,7 +42,9 @@ namespace WomanDayBot
       Add(new WaterfallDialog(MainDialog, steps));
     }
 
-    private async Task<DialogTurnResult> PromtForNameAsync(WaterfallStepContext stepContext, CancellationToken cancellationToken = default(CancellationToken))
+    private async Task<DialogTurnResult> PromtForNameAsync(
+      WaterfallStepContext stepContext,
+      CancellationToken cancellationToken = default(CancellationToken))
     {
       // Prompt for the party size. The result of the prompt is returned to the next step of the waterfall.
       return await stepContext.PromptAsync(
@@ -65,14 +64,14 @@ namespace WomanDayBot
     /// <param name="cancellationToken">Cancellation token for async operations</param>
     /// <returns>True if name valid and false if not valid</returns>
     private async Task<bool> UserNamePromptValidatorAsync(
-   PromptValidatorContext<string> promptContext,
-   CancellationToken cancellationToken = default(CancellationToken))
+      PromptValidatorContext<string> promptContext,
+      CancellationToken cancellationToken = default(CancellationToken))
     {
       if (!promptContext.Recognized.Succeeded)
       {
         await promptContext.Context.SendActivityAsync(
-            "Извините, но я вас не понял. Пожалуйста, введите своё имя.",
-            cancellationToken: cancellationToken);
+          "Извините, но я вас не понял. Пожалуйста, введите своё имя.",
+          cancellationToken: cancellationToken);
 
         return false;
       }
@@ -81,25 +80,24 @@ namespace WomanDayBot
 
       Regex regex = new Regex(@"(\w)+");
 
-      if (value != null)
+      if (value != null && regex.IsMatch(value))
       {
-        if (regex.IsMatch(value))
-        {
-          return true;
-        }
+        return true;
       }
 
-      await promptContext.Context.SendActivitiesAsync(
-                  new[]
-                  {
-                    MessageFactory.Text("К сожалению, я не могу распознать ваше имя."),
-                    promptContext.Options.RetryPrompt,
-                  },
-                  cancellationToken);
+      await promptContext.Context.SendActivitiesAsync(new[]
+      {
+        MessageFactory.Text("К сожалению, я не могу распознать ваше имя."),
+        promptContext.Options.RetryPrompt
+      },
+      cancellationToken);
+
       return false;
     }
 
-    private async Task<DialogTurnResult> PromtForRoomAsync(WaterfallStepContext stepContext, CancellationToken cancellationToken = default(CancellationToken))
+    private async Task<DialogTurnResult> PromtForRoomAsync(
+      WaterfallStepContext stepContext, 
+      CancellationToken cancellationToken = default(CancellationToken))
     {
       // Record the name information in the current dialog state.
       var name = (string)stepContext.Result;
@@ -107,17 +105,19 @@ namespace WomanDayBot
 
       // Prompt for the party size. The result of the prompt is returned to the next step of the waterfall.
       return await stepContext.PromptAsync(
-          RoomPromt,
-          new PromptOptions
-          {
-            Prompt = MessageFactory.Text("Мы уже почти на одной волне. Черкани адресок: я заеду."),
-            RetryPrompt = MessageFactory.Text("Да не домашний адрес. В офисе комнату напиши."),
-            Choices = ChoiceFactory.ToChoices(new List<string> { "701", "702", "801", "802", "803", "806", "807", "808" })
-          },
-          cancellationToken);
+        RoomPromt,
+        new PromptOptions
+        {
+          Prompt = MessageFactory.Text("Мы уже почти на одной волне. Черкани адресок: я заеду."),
+          RetryPrompt = MessageFactory.Text("Да не домашний адрес. В офисе комнату напиши."),
+          Choices = ChoiceFactory.ToChoices(new List<string> { "701", "702", "801", "802", "803", "806", "807", "808" })
+        },
+        cancellationToken);
     }
 
-    private async Task<DialogTurnResult> AcknowledgeUserDataAsync(WaterfallStepContext stepContext, CancellationToken cancellationToken = default(CancellationToken))
+    private async Task<DialogTurnResult> AcknowledgeUserDataAsync(
+      WaterfallStepContext stepContext, 
+      CancellationToken cancellationToken = default(CancellationToken))
     {
       // Record the party size information in the current dialog state.
       var room = (stepContext.Result as FoundChoice).Value;

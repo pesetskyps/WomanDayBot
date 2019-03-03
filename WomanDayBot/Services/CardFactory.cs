@@ -5,7 +5,7 @@ using Microsoft.Bot.Schema;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 
-namespace WomanDayBot
+namespace WomanDayBot.Services
 {
   public interface ICardFactory
   {
@@ -28,11 +28,11 @@ namespace WomanDayBot
       return this.CreateAdaptiveCardAttachmentAsync();
     }
 
-        private async Task<List<Attachment>> CreateAdaptiveCardAttachmentAsync()
-        {
-            string[] paths = { ".", "Cards", "Templates", "orderCard.json" };
-            string fullPath = Path.Combine(paths);
-            var adaptiveCardTemplate = File.ReadAllText(fullPath);
+    private async Task<List<Attachment>> CreateAdaptiveCardAttachmentAsync()
+    {
+      string[] paths = { ".", "Templates", "orderCard.json" };
+      string fullPath = Path.Combine(paths);
+      var adaptiveCardTemplate = File.ReadAllText(fullPath);
 
       var cardConfigurations = await _cardConfigurationService.GetConfigurationsAsync();
       var cards = new List<Attachment>();

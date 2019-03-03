@@ -1,7 +1,7 @@
 ﻿using System;
 using Microsoft.Bot.Builder;
 using Microsoft.Bot.Builder.Dialogs;
-using WomanDayBot.Users;
+using WomanDayBot.Models;
 
 namespace WomanDayBot
 {
