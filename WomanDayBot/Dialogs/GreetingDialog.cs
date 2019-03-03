@@ -25,12 +25,8 @@ namespace WomanDayBot.Dialogs
     /// <summary>Creates a new instance of this dialog set.</summary>
     /// <param name="dialogState">The dialog state property accessor to use for dialog state.</param>
     public GreetingsDialog(IStatePropertyAccessor<DialogState> dialogState)
-        : base(dialogState)
+      : base(dialogState)
     {
-      // Add the text prompt to the dialog set.
-      Add(new TextPrompt(NamePromt, this.UserNamePromptValidatorAsync));
-      Add(new ChoicePrompt(RoomPromt));
-
       var steps = new WaterfallStep[]
       {
         PromtForNameAsync,
@@ -38,7 +34,8 @@ namespace WomanDayBot.Dialogs
         AcknowledgeUserDataAsync
       };
 
-      // Define the main dialog and add it to the set.
+      Add(new TextPrompt(NamePromt, this.UserNamePromptValidatorAsync));
+      Add(new ChoicePrompt(RoomPromt));
       Add(new WaterfallDialog(MainDialog, steps));
     }
 
@@ -48,13 +45,13 @@ namespace WomanDayBot.Dialogs
     {
       // Prompt for the party size. The result of the prompt is returned to the next step of the waterfall.
       return await stepContext.PromptAsync(
-          NamePromt,
-          new PromptOptions
-          {
-            Prompt = MessageFactory.Text("Не то, чтобы я хотел подкатить, но как тебя зовут. Принцесса?"),
-            RetryPrompt = MessageFactory.Text("Да ладно, ну скажи имечко?")
-          },
-          cancellationToken);
+        NamePromt,
+        new PromptOptions
+        {
+          Prompt = MessageFactory.Text("Не то, чтобы я хотел подкатить, но как тебя зовут. Принцесса?"),
+          RetryPrompt = MessageFactory.Text("Да ладно, ну скажи имечко?")
+        },
+        cancellationToken);
     }
 
     /// <summary>
@@ -78,7 +75,7 @@ namespace WomanDayBot.Dialogs
 
       var value = promptContext.Recognized.Value;
 
-      Regex regex = new Regex(@"(\w)+");
+      var regex = new Regex(@"(\w)+");
 
       if (value != null && regex.IsMatch(value))
       {
@@ -96,7 +93,7 @@ namespace WomanDayBot.Dialogs
     }
 
     private async Task<DialogTurnResult> PromtForRoomAsync(
-      WaterfallStepContext stepContext, 
+      WaterfallStepContext stepContext,
       CancellationToken cancellationToken = default(CancellationToken))
     {
       // Record the name information in the current dialog state.
@@ -116,7 +113,7 @@ namespace WomanDayBot.Dialogs
     }
 
     private async Task<DialogTurnResult> AcknowledgeUserDataAsync(
-      WaterfallStepContext stepContext, 
+      WaterfallStepContext stepContext,
       CancellationToken cancellationToken = default(CancellationToken))
     {
       // Record the party size information in the current dialog state.

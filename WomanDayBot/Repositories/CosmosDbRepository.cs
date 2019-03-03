@@ -57,7 +57,7 @@ namespace WomanDayBot.Repositories
           new FeedOptions { MaxItemCount = -1 })
         .AsDocumentQuery();
 
-      List<T> results = new List<T>();
+      var results = new List<T>();
       while (query.HasMoreResults)
       {
         results.AddRange(await query.ExecuteNextAsync<T>());
@@ -75,7 +75,7 @@ namespace WomanDayBot.Repositories
         .Where(predicate)
         .AsDocumentQuery();
 
-      List<T> results = new List<T>();
+      var results = new List<T>();
       while (query.HasMoreResults)
       {
         results.AddRange(await query.ExecuteNextAsync<T>());

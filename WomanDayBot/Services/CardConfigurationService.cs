@@ -7,7 +7,7 @@ namespace WomanDayBot.Services
 {
   public interface ICardConfigurationService
   {
-    Task<IEnumerable<CardConfiguration>> GetConfigurationsAsync();
+    Task<IEnumerable<CardConfiguration>> GetCardConfigurationsAsync();
   }
 
   public class CardConfigurationService : ICardConfigurationService
@@ -19,7 +19,7 @@ namespace WomanDayBot.Services
       _cardConfigurationRepository = cardConfigurationRepository;
     }
 
-    public async Task<IEnumerable<CardConfiguration>> GetConfigurationsAsync()
+    public async Task<IEnumerable<CardConfiguration>> GetCardConfigurationsAsync()
     {
       return await _cardConfigurationRepository.GetItemsAsync();
     }

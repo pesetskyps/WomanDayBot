@@ -7,19 +7,19 @@ using Newtonsoft.Json;
 
 namespace WomanDayBot.Services
 {
-  public interface ICardFactory
+  public interface ICardService
   {
     Task<List<Attachment>> CreateAttachmentsAsync();
   }
 
-  public class CardFactory : ICardFactory
+  public class CardService : ICardService
   {
-    private readonly ILogger<CardFactory> _logger;
+    private readonly ILogger<CardService> _logger;
     private readonly ICardConfigurationService _cardConfigurationService;
 
-    public CardFactory(ILoggerFactory loggerFactory, ICardConfigurationService cardConfigurationService)
+    public CardService(ILoggerFactory loggerFactory, ICardConfigurationService cardConfigurationService)
     {
-      _logger = loggerFactory.CreateLogger<CardFactory>();
+      _logger = loggerFactory.CreateLogger<CardService>();
       _cardConfigurationService = cardConfigurationService;
     }
 
@@ -31,11 +31,12 @@ namespace WomanDayBot.Services
     private async Task<List<Attachment>> CreateAdaptiveCardAttachmentAsync()
     {
       string[] paths = { ".", "Templates", "orderCard.json" };
-      string fullPath = Path.Combine(paths);
+      var fullPath = Path.Combine(paths);
       var adaptiveCardTemplate = File.ReadAllText(fullPath);
 
-      var cardConfigurations = await _cardConfigurationService.GetConfigurationsAsync();
       var cards = new List<Attachment>();
+
+      var cardConfigurations = await _cardConfigurationService.GetCardConfigurationsAsync();
       foreach (var configuration in cardConfigurations)
       {
         var card = adaptiveCardTemplate;

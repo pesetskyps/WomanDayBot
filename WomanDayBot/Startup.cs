@@ -22,22 +22,22 @@ namespace WomanDayBot
 {
   public class Startup
   {
-    private ILoggerFactory _loggerFactory;
-    private bool _isProduction = false;
+    private readonly bool _isProduction = false;
+    private readonly ILogger<WomanDayBotBot> _logger;
 
     public IConfiguration Configuration { get; }
 
-    public Startup(IHostingEnvironment env)
+    public Startup(IHostingEnvironment env, ILoggerFactory loggerFactory)
     {
       _isProduction = env.IsProduction();
+      _logger = loggerFactory.CreateLogger<WomanDayBotBot>();
 
-      var builder = new ConfigurationBuilder()
+      this.Configuration = new ConfigurationBuilder()
         .SetBasePath(env.ContentRootPath)
         .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
         .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true)
-        .AddEnvironmentVariables();
-
-      this.Configuration = builder.Build();
+        .AddEnvironmentVariables()
+        .Build();
     }
 
     public void ConfigureServices(IServiceCollection services)
@@ -98,35 +98,34 @@ namespace WomanDayBot
 
       IStorage dataStore = new CosmosDbStorage(cosmosDbStorageOptions);
 
-      services.AddSingleton(new OrderRepository(cosmosDbStorageOptions));
-
-      // Create and add conversation state.
+      // Register state models
       var conversationState = new ConversationState(dataStore);
       services.AddSingleton(conversationState);
 
       var userState = new UserState(dataStore);
       services.AddSingleton(userState);
 
+      // Register repositories
+      services.AddSingleton(new OrderRepository(cosmosDbStorageOptions));
+      services.AddSingleton<CardConfigurationRepository>();
+
+      // Register services
+      services.AddSingleton<ICardConfigurationService, CardConfigurationService>();
+      services.AddSingleton<ICardService, CardService>();
+
       services.AddBot<WomanDayBotBot>(options =>
       {
         options.CredentialProvider = new SimpleCredentialProvider(endpointService.AppId, endpointService.AppPassword);
 
-        ILogger logger = _loggerFactory.CreateLogger<WomanDayBotBot>();
-
         options.OnTurnError = async (context, exception) =>
         {
-          logger.LogError(exception, "Unhandled exception");
+          _logger.LogError(exception, "Unhandled exception");
           await context.SendActivityAsync("Черт, эти программисты опять налажали! Неведома ошибка");
         };
       });
-      services.AddSingleton<CardConfigurationRepository>();
-      services.AddSingleton<ICardConfigurationService, CardConfigurationService>();
-      services.AddSingleton<ICardFactory, CardFactory>();
 
       services.AddSingleton<WomanDayBotAccessors>(sp =>
       {
-        var options = sp.GetRequiredService<IOptions<BotFrameworkOptions>>().Value;
-
         return new WomanDayBotAccessors(userState, conversationState)
         {
           UserDataAccessor = userState.CreateProperty<UserData>("WomanDayBot.UserData"),
@@ -135,10 +134,8 @@ namespace WomanDayBot
       });
     }
 
-    public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
+    public void Configure(IApplicationBuilder app)
     {
-      _loggerFactory = loggerFactory;
-
       app
         .UseDefaultFiles()
         .UseStaticFiles()
