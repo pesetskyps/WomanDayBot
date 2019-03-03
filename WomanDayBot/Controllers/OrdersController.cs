@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using WomanDayBot.Orders;
@@ -11,8 +10,8 @@ namespace WomanDayBot.Web.Controllers
   public class OrdersController : Controller
   {
     private readonly ILogger<WomanDayBotBot> _logger;
-    private readonly OrderRepository<Order> _orderRepository;
-    public OrdersController(ILoggerFactory loggerFactory, OrderRepository<Order> orderRepository)
+    private readonly OrderRepository _orderRepository;
+    public OrdersController(ILoggerFactory loggerFactory, OrderRepository orderRepository)
     {
       _logger = loggerFactory.CreateLogger<WomanDayBotBot>();
       _orderRepository = orderRepository;
@@ -32,15 +31,10 @@ namespace WomanDayBot.Web.Controllers
       {
         return NotFound();
       }
-      try
-      {
-        Order qwe = await _orderRepository.GetItemAsync(order.Id.ToString());
-        await _orderRepository.UpdateItemAsync(order.Id.ToString(), order);
-      }
-      catch(Exception ex)
-      {
-        var t = ex;
-      }
+
+      Order qwe = await _orderRepository.GetItemAsync(order.Id.ToString());
+      await _orderRepository.UpdateItemAsync(order.Id.ToString(), order);
+
       return Ok();
     }
   }
