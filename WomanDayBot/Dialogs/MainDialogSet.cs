@@ -24,7 +24,6 @@ namespace WomanDayBot.Dialogs
     // Define keys for tracked values within the dialog.
     private const string NameKey = "NameKey";
     private const string RoomKey = "RoomKey";
-    private const string CategoryKey = "CategoryKey";
 
     /// <summary>Creates a new instance of this dialog set.</summary>
     /// <param name="dialogState">The dialog state property accessor to use for dialog state.</param>
