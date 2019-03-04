@@ -10,40 +10,38 @@ using WomanDayBot.Models;
 namespace WomanDayBot.Dialogs
 {
   /// <summary>Defines a dialog for collecting a user's name.</summary>
-  public class GreetingsDialog : DialogSet
+  public class GreetingDialog : DialogSet
   {
-    /// <summary>The ID of the main dialog.</summary>
-    public const string MainDialog = "main";
+    public const string DialogId = "GreetingsDialogId";
 
-    private const string NamePromt = "namePromt";
-    private const string RoomPromt = "roomPromt";
+    private const string NamePromt = "NamePromt";
+    private const string RoomPromt = "RoomPromt";
 
     // Define keys for tracked values within the dialog.
-    private const string Name = "name";
-    private const string Room = "room";
+    private const string NameKey = "NameKey";
+    private const string RoomKey = "RoomKey";
 
     /// <summary>Creates a new instance of this dialog set.</summary>
     /// <param name="dialogState">The dialog state property accessor to use for dialog state.</param>
-    public GreetingsDialog(IStatePropertyAccessor<DialogState> dialogState)
+    public GreetingDialog(IStatePropertyAccessor<DialogState> dialogState)
       : base(dialogState)
     {
       var steps = new WaterfallStep[]
       {
         PromtForNameAsync,
         PromtForRoomAsync,
-        AcknowledgeUserDataAsync
+        EndDialogAsync
       };
 
       Add(new TextPrompt(NamePromt, this.UserNamePromptValidatorAsync));
       Add(new ChoicePrompt(RoomPromt));
-      Add(new WaterfallDialog(MainDialog, steps));
+      Add(new WaterfallDialog(DialogId, steps));
     }
 
     private async Task<DialogTurnResult> PromtForNameAsync(
       WaterfallStepContext stepContext,
       CancellationToken cancellationToken = default(CancellationToken))
     {
-      // Prompt for the party size. The result of the prompt is returned to the next step of the waterfall.
       return await stepContext.PromptAsync(
         NamePromt,
         new PromptOptions
@@ -98,7 +96,7 @@ namespace WomanDayBot.Dialogs
     {
       // Record the name information in the current dialog state.
       var name = (string)stepContext.Result;
-      stepContext.Values[Name] = name;
+      stepContext.Values[NameKey] = name;
 
       // Prompt for the party size. The result of the prompt is returned to the next step of the waterfall.
       return await stepContext.PromptAsync(
@@ -112,22 +110,18 @@ namespace WomanDayBot.Dialogs
         cancellationToken);
     }
 
-    private async Task<DialogTurnResult> AcknowledgeUserDataAsync(
+    private async Task<DialogTurnResult> EndDialogAsync(
       WaterfallStepContext stepContext,
       CancellationToken cancellationToken = default(CancellationToken))
     {
-      // Record the party size information in the current dialog state.
       var room = (stepContext.Result as FoundChoice).Value;
-      stepContext.Values[Room] = room;
-
-      // Send an acknowledgement to the user.
-      await stepContext.Context.SendActivityAsync("Ну теперь-то мы с тобой зажжем!", cancellationToken: cancellationToken);
+      stepContext.Values[RoomKey] = room;
 
       // Return the collected information to the parent context.
       var userData = new UserData
       {
-        Name = (string)stepContext.Values[Name],
-        Room = (string)stepContext.Values[Room]
+        Name = (string)stepContext.Values[NameKey],
+        Room = (string)stepContext.Values[RoomKey]
       };
 
       return await stepContext.EndDialogAsync(userData, cancellationToken);
