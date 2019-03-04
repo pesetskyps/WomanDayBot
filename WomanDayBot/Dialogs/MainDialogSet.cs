@@ -60,20 +60,21 @@ namespace WomanDayBot.Dialogs
       var message = stepContext.Context.Activity;
       if (message.Type == ActivityTypes.ConversationUpdate)
       {
-        foreach (var member in message.MembersAdded ?? Array.Empty<ChannelAccount>())
-          if (member.Id == message.Recipient.Id)
-          {
-            // Prompt for the party size. The result of the prompt is returned to the next step of the waterfall.
-            return await stepContext.PromptAsync(
-              NamePromt,
-              new PromptOptions
-              {
-                Prompt = MessageFactory.Text("Не то, чтобы я хотел подкатить, но как тебя зовут. Принцесса?"),
-                RetryPrompt = MessageFactory.Text("Да ладно, ну скажи имечко?")
-              },
-              cancellationToken);
-          }
+        var members = message.MembersAdded ?? Enumerable.Empty<ChannelAccount>();
+
+        foreach (var member in members.Where(x => x.Id == message.Recipient.Id))
+        {
+          return await stepContext.PromptAsync(
+            NamePromt,
+            new PromptOptions
+            {
+              Prompt = MessageFactory.Text("Не то, чтобы я хотел подкатить, но как тебя зовут. Принцесса?"),
+              RetryPrompt = MessageFactory.Text("Да ладно, ну скажи имечко?")
+            },
+            cancellationToken);
+        }
       }
+
       return null;
     }
 
