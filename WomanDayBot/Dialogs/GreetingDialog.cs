@@ -1,10 +1,12 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Bot.Builder;
 using Microsoft.Bot.Builder.Dialogs;
 using Microsoft.Bot.Builder.Dialogs.Choices;
+using Microsoft.Bot.Schema;
 using WomanDayBot.Models;
 
 namespace WomanDayBot.Dialogs
@@ -43,15 +45,26 @@ namespace WomanDayBot.Dialogs
       WaterfallStepContext stepContext,
       CancellationToken cancellationToken = default(CancellationToken))
     {
-      // Prompt for the party size. The result of the prompt is returned to the next step of the waterfall.
-      return await stepContext.PromptAsync(
-        NamePromt,
-        new PromptOptions
+      var message = stepContext.Context.Activity;
+      if (message.Type == ActivityTypes.ConversationUpdate)
+      {
+        foreach (var member in message.MembersAdded ?? Array.Empty<ChannelAccount>())
         {
-          Prompt = MessageFactory.Text("Не то, чтобы я хотел подкатить, но как тебя зовут. Принцесса?"),
-          RetryPrompt = MessageFactory.Text("Да ладно, ну скажи имечко?")
-        },
-        cancellationToken);
+          if (member.Id == message.Recipient.Id)
+          {
+            // Prompt for the party size. The result of the prompt is returned to the next step of the waterfall.
+            return await stepContext.PromptAsync(
+              NamePromt,
+              new PromptOptions
+              {
+                Prompt = MessageFactory.Text("Не то, чтобы я хотел подкатить, но как тебя зовут. Принцесса?"),
+                RetryPrompt = MessageFactory.Text("Да ладно, ну скажи имечко?")
+              },
+              cancellationToken);
+          }
+        }
+      }
+      return null;
     }
 
     /// <summary>
