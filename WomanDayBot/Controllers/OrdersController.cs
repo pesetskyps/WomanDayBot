@@ -1,8 +1,10 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using WomanDayBot.Orders;
+using WomanDayBot.Models;
+using WomanDayBot.Repositories;
 
 namespace WomanDayBot.Web.Controllers
 {
@@ -29,10 +31,9 @@ namespace WomanDayBot.Web.Controllers
     {
       if (order is null)
       {
-        return NotFound();
+        return BadRequest();
       }
 
-      Order qwe = await _orderRepository.GetItemAsync(order.Id.ToString());
       await _orderRepository.UpdateItemAsync(order.Id.ToString(), order);
 
       return Ok();

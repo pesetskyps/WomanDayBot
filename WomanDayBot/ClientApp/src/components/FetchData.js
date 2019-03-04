@@ -9,33 +9,50 @@ class FetchData extends Component {
     this.props.requestOrders();
   }
 
-  handleChange = (event, orderId) => {
-    this.props.updateOrder(orderId, event.target.checked);
+  componentWillReceiveProps(){
+    this.props.requestOrders();
   }
 
-  template = ({ orderId, orderType, isComplete }) => {
-    return <div key={orderId} className={this.props.className}>
-      <label>
-        <input
-          checked={isComplete}
-          data-role='check'
-          onChange={(event) => this.handleChange(event, orderId)}
-          type='checkbox' />
-        <span
-          className={'blue-text text-darken-2'}>
-          {orderType}
-        </span>
-      </label>
-    </div>
+  handleClick = (event, orderId, isComplete) => {
+    this.props.updateOrder(orderId, isComplete);
+  }
+
+  template = (orders) => {
+    return <table className='responsive-table'>
+      <thead>
+        <tr>
+          <th>Order type</th>
+          <th>Client name</th>
+          <th>Room</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {orders.map(order =>
+          <tr className='asd' key={order.orderId}>
+            <td>{order.orderType}</td>
+            <td>{order.userData.name}</td>
+            <td>{order.userData.room}</td>
+            <td>
+              <button
+                className="btn waves-effect waves-light"
+                type="button"
+                name="action"
+                onClick={(event) => this.handleClick(event, order.orderId, !order.isComplete)}>
+                {order.isComplete ? "Incomplete" : "Complete"}
+              </button>
+            </td>
+          </tr>
+        )}
+      </tbody>
+    </table>
   }
 
   render() {
     const { orders, className } = this.props;
-    const ordersList = orders.length ? orders.map(x => {
-      return this.template(x)
-    }) : <div className={className}>
-        <span className="blue-text text-darken-2">You don't have any orders.</span>
-      </div>;
+    const ordersList = orders.length ? this.template(orders) : <div className={className}>
+      <span className="blue-text text-darken-2">You don't have any orders.</span>
+    </div>;
     return (
       <Fragment>
         {ordersList}

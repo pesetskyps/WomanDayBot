@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.SpaServices.ReactDevelopmentServer;
 using Microsoft.Bot.Builder;
 using Microsoft.Bot.Builder.Azure;
 using Microsoft.Bot.Builder.Dialogs;
+using Microsoft.Bot.Builder.Integration;
 using Microsoft.Bot.Builder.Integration.AspNet.Core;
 using Microsoft.Bot.Configuration;
 using Microsoft.Bot.Connector.Authentication;
@@ -15,8 +16,9 @@ using Microsoft.Extensions.Options;
 using System;
 using System.IO;
 using System.Linq;
-using WomanDayBot.Orders;
-using WomanDayBot.Users;
+using WomanDayBot.Models;
+using WomanDayBot.Repositories;
+using WomanDayBot.Services;
 
 namespace WomanDayBot
 {
@@ -142,7 +144,6 @@ namespace WomanDayBot
 
       services.AddSingleton<CardConfigurationRepository>();
       services.AddSingleton<ICardConfigurationService, CardConfigurationService>();
-      services.AddSingleton<ICardFactory, CardFactory>();
 
       services.AddSingleton<WomanDayBotAccessors>(sp =>
       {

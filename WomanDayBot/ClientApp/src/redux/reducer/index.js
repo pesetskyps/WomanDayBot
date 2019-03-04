@@ -1,4 +1,4 @@
-﻿import { RECEIVE_ORDERS, REQUEST_ORDERS, UPDATE_ORDER } from '../constants/index'
+﻿import { RECEIVE_ORDERS, REQUEST_ORDERS } from '../constants/index'
 
 const initialState = { orders: [] };
 
@@ -18,9 +18,9 @@ export const actionCreators = {
     // dispatch({ type: REQUEST_ORDERS });
     let state = getState();
     let { orders } = state.orders;
-    const order = orders.filter(obj => obj.orderId === orderId)[0];
+    const index = orders.findIndex(obj => obj.orderId === orderId);
 
-    order.isComplete = isComplete;
+    orders[index].isComplete = isComplete;
     const url = `api/Orders/UpdateOrderAsync`;
     const response = await fetch(url, {
       method: 'PUT',
@@ -28,10 +28,12 @@ export const actionCreators = {
         'Accept': 'application/json',
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify(order)
+      body: JSON.stringify(orders[index])
     });
 
-    dispatch({ type: RECEIVE_ORDERS, orders });
+    if (response.ok) {
+      dispatch({ type: RECEIVE_ORDERS, orders });
+    }
   }
 };
 
