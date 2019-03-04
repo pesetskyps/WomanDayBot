@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
@@ -10,32 +12,45 @@ using WomanDayBot.Models;
 namespace WomanDayBot.Dialogs
 {
   /// <summary>Defines a dialog for collecting a user's name.</summary>
-  public class GreetingDialog : DialogSet
+  public class MainDialogSet : DialogSet
   {
-    public const string DialogId = "GreetingsDialogId";
+    public const string GreetingDialogId = "GreetingDialogId";
+    public const string CategoryChooseDialogId = "CategoryChooseDialogId";
 
     private const string NamePromt = "NamePromt";
     private const string RoomPromt = "RoomPromt";
+    private const string OrderCategoryPromt = "OrderCategoryPromt";
 
     // Define keys for tracked values within the dialog.
     private const string NameKey = "NameKey";
     private const string RoomKey = "RoomKey";
+    private const string CategoryKey = "CategoryKey";
 
     /// <summary>Creates a new instance of this dialog set.</summary>
     /// <param name="dialogState">The dialog state property accessor to use for dialog state.</param>
-    public GreetingDialog(IStatePropertyAccessor<DialogState> dialogState)
+    public MainDialogSet(IStatePropertyAccessor<DialogState> dialogState)
       : base(dialogState)
     {
-      var steps = new WaterfallStep[]
+      var greetingSteps = new WaterfallStep[]
       {
         PromtForNameAsync,
         PromtForRoomAsync,
-        EndDialogAsync
+        EndGreetingDialogAsync
       };
 
       Add(new TextPrompt(NamePromt, this.UserNamePromptValidatorAsync));
       Add(new ChoicePrompt(RoomPromt));
-      Add(new WaterfallDialog(DialogId, steps));
+      Add(new WaterfallDialog(GreetingDialogId, greetingSteps));
+
+
+      var categorySteps = new WaterfallStep[]
+      {
+        PromtForCategoryAsync,
+        EndCategoryDialogAsync
+      };
+
+      Add(new ChoicePrompt(OrderCategoryPromt));
+      Add(new WaterfallDialog(CategoryChooseDialogId, categorySteps));
     }
 
     private async Task<DialogTurnResult> PromtForNameAsync(
@@ -110,7 +125,7 @@ namespace WomanDayBot.Dialogs
         cancellationToken);
     }
 
-    private async Task<DialogTurnResult> EndDialogAsync(
+    private async Task<DialogTurnResult> EndGreetingDialogAsync(
       WaterfallStepContext stepContext,
       CancellationToken cancellationToken = default(CancellationToken))
     {
@@ -125,6 +140,36 @@ namespace WomanDayBot.Dialogs
       };
 
       return await stepContext.EndDialogAsync(userData, cancellationToken);
+    }
+
+    private async Task<DialogTurnResult> PromtForCategoryAsync(
+      WaterfallStepContext stepContext,
+      CancellationToken cancellationToken = default(CancellationToken))
+    {
+      // exclude None from the choices
+      var categories = Enum.GetNames(typeof(OrderCategory))
+        .Where(x => string.Equals(x, OrderCategory.None.ToString()) == false)
+        .ToList();
+
+      return await stepContext.PromptAsync(
+        OrderCategoryPromt,
+        new PromptOptions
+        {
+          Prompt = MessageFactory.Text("Выбирай категорию"),
+          RetryPrompt = MessageFactory.Text("Повтори-ка"),
+          Choices = ChoiceFactory.ToChoices(categories)
+        },
+        cancellationToken);
+    }
+
+    private async Task<DialogTurnResult> EndCategoryDialogAsync(
+      WaterfallStepContext stepContext,
+      CancellationToken cancellationToken = default(CancellationToken))
+    {
+      var choiceValue = (stepContext.Result as FoundChoice).Value;
+      var category = Enum.Parse<OrderCategory>(choiceValue);
+
+      return await stepContext.EndDialogAsync(category, cancellationToken);
     }
   }
 }
