@@ -46,9 +46,10 @@ export const reducer = (state, action) => {
   }
 
   if (action.type === RECEIVE_ORDERS) {
+    const orders = action.orders.sort(x => new Date(x.rerequestTime).toLocaleTimeString());
     return {
       ...state,
-      orders: action.orders
+      orders: orders
     };
   }
 

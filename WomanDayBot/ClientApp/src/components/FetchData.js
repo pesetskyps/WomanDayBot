@@ -18,22 +18,31 @@ class FetchData extends Component {
     this.props.updateOrder(orderId, isComplete);
   }
 
+  formatTime = (requestTime) => {
+    const date = new Date(requestTime);
+    return date.toLocaleTimeString();
+  }
+
   template = (orders) => {
     return <table>
       <thead>
         <tr>
+          <th>#</th>
           <th>Order type</th>
           <th>Client name</th>
           <th>Room</th>
+          <th>Request time</th>
           <th>Action button</th>
         </tr>
       </thead>
       <tbody>
-        {orders.map(order =>
+        {orders.map((order, index) =>
           <tr className='asd' key={order.orderId}>
+            <td>{index}</td>
             <td>{order.orderType}</td>
             <td>{order.userData.name}</td>
             <td>{order.userData.room}</td>
+            <td>{this.formatTime(order.requestTime)}</td>
             <td>
               <button
                 className={order.isComplete ? "btn waves-effect waves-light red" : "btn waves-effect waves-light"}
