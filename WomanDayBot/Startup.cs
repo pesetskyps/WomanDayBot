@@ -127,8 +127,7 @@ namespace WomanDayBot
         return new WomanDayBotAccessors(userState, conversationState)
         {
           UserDataAccessor = userState.CreateProperty<UserData>("WomanDayBot.UserData"),
-          DialogStateAccessor = conversationState.CreateProperty<DialogState>("WomanDayBot.DialogState"),
-          OrderCategoryAccessor = conversationState.CreateProperty<OrderCategory>("WomanDayBot.OrderCategory")
+          DialogStateAccessor = conversationState.CreateProperty<DialogState>("WomanDayBot.DialogState")
         };
       });
     }

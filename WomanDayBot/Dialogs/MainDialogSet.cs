@@ -157,10 +157,7 @@ namespace WomanDayBot.Dialogs
       WaterfallStepContext stepContext,
       CancellationToken cancellationToken = default(CancellationToken))
     {
-      // exclude None from the choices
-      var categories = Enum.GetNames(typeof(OrderCategory))
-        .Where(x => string.Equals(x, OrderCategory.None.ToString()) == false)
-        .ToList();
+      var categories = Enum.GetNames(typeof(OrderCategory));
 
       return await stepContext.PromptAsync(
         OrderCategoryPromt,
