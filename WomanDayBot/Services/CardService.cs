@@ -1,15 +1,18 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Bot.Schema;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using WomanDayBot.Models;
 
 namespace WomanDayBot.Services
 {
   public interface ICardService
   {
-    Task<List<Attachment>> CreateAttachmentsAsync();
+    Task<List<Attachment>> CreateAttachmentsAsync(OrderCategory category);
   }
 
   public class CardService : ICardService
@@ -23,12 +26,12 @@ namespace WomanDayBot.Services
       _cardConfigurationService = cardConfigurationService;
     }
 
-    public Task<List<Attachment>> CreateAttachmentsAsync()
+    public Task<List<Attachment>> CreateAttachmentsAsync(OrderCategory category)
     {
-      return this.CreateAdaptiveCardAttachmentAsync();
+      return this.CreateAdaptiveCardAttachmentAsync(category);
     }
 
-    private async Task<List<Attachment>> CreateAdaptiveCardAttachmentAsync()
+    private async Task<List<Attachment>> CreateAdaptiveCardAttachmentAsync(OrderCategory category)
     {
       string[] paths = { ".", "Templates", "orderCard.json" };
       var fullPath = Path.Combine(paths);
@@ -37,6 +40,13 @@ namespace WomanDayBot.Services
       var cards = new List<Attachment>();
 
       var cardConfigurations = await _cardConfigurationService.GetCardConfigurationsAsync();
+
+      if (category != OrderCategory.All)
+      {
+        var categoryName = category.ToString();
+        cardConfigurations = cardConfigurations.Where(x => categoryName.Equals(x.OrderCategory, StringComparison.OrdinalIgnoreCase));
+      }
+
       foreach (var configuration in cardConfigurations)
       {
         var card = adaptiveCardTemplate;

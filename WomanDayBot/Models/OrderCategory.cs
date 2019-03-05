@@ -1,10 +1,12 @@
 ﻿namespace WomanDayBot.Models
 {
-  public enum OrderCategory
+  public enum OrderCategory : long
   {
-    Alcohol,
-    NonAlcohol,
-    Food,
-    Sweet
+    None = 0,
+    All = 1,
+    Alcohol = 2,
+    NonAlcohol = 3,
+    Food = 4,
+    Sweet = 5
   }
 }
