@@ -50,9 +50,9 @@ class FetchData extends Component {
   }
 
   layout = (orders) => {
-    return <div class="row" id='row'>
-      <div class="col s6" id="incompleted-orders"><span>Incompleted</span>{this.template(orders.filter(x => !x.isComplete))}</div>
-      <div class="col s6" id="incompleted-orders"><span>Completed</span>{this.template(orders.filter(x => x.isComplete))}</div>
+    return <div className="row" id='row'>
+      <div className="col s6" id="incompleted-orders"><span>Incompleted</span>{this.template(orders.filter(x => !x.isComplete))}</div>
+      <div className="col s6" id="incompleted-orders"><span>Completed</span>{this.template(orders.filter(x => x.isComplete))}</div>
     </div>
   }
 

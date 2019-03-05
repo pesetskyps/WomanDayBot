@@ -34,7 +34,7 @@ namespace WomanDayBot.Web.Controllers
         return BadRequest();
       }
 
-      await _orderRepository.UpdateItemAsync(order.Id.ToString(), order);
+      await _orderRepository.PatchItemAsync(order.Id.ToString(), nameof(order.IsComplete), order.IsComplete);
 
       return Ok();
     }

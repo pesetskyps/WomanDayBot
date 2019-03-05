@@ -14,9 +14,9 @@ namespace WomanDayBot.Repositories
 {
   public class CosmosDbRepository<T> where T : class
   {
-    private readonly CosmosDbStorageOptions _configurationOptions;
-    private readonly string _collectionId;
-    private readonly string _databaseId;
+    internal readonly CosmosDbStorageOptions _configurationOptions;
+    internal readonly string _collectionId;
+    internal readonly string _databaseId;
     private readonly DocumentClient _client;
 
     public object DefaultOptions { get; private set; }
@@ -96,20 +96,9 @@ namespace WomanDayBot.Repositories
       return await _client.CreateDocumentAsync(UriFactory.CreateDocumentCollectionUri(_databaseId, _collectionId), item);
     }
 
-    public async Task<Document> UpdateItemAsync(string id, Order item)
+    public async Task<Document> UpdateItemAsync(string id, T item)
     {
-      using (var client = new DocumentClient(_configurationOptions.CosmosDBEndpoint, _configurationOptions.AuthKey))
-      {
-        var link = UriFactory.CreateDocumentCollectionUri(_databaseId, _collectionId);
-        Document doc = client.CreateDocumentQuery<Document>(link, new FeedOptions { EnableCrossPartitionQuery = true })
-          .Where(r => r.Id == id).AsEnumerable().SingleOrDefault();
-
-        doc.SetPropertyValue("IsComplete", item.IsComplete);
-
-
-        Document updated = await client.ReplaceDocumentAsync(doc);
-        return updated;
-      }
+      return await _client.ReplaceDocumentAsync(UriFactory.CreateDocumentCollectionUri(_databaseId, _collectionId), item);
     }
 
     public async Task DeleteItemAsync(string id)

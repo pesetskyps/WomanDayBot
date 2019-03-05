@@ -132,7 +132,7 @@ namespace WomanDayBot
       services.AddBot<WomanDayBotBot>(options =>
       {
         options.CredentialProvider = new SimpleCredentialProvider(endpointService.AppId, endpointService.AppPassword);
-        
+
         ILogger logger = _loggerFactory.CreateLogger<WomanDayBotBot>();
 
         options.OnTurnError = async (context, exception) =>
