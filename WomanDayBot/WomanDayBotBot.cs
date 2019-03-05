@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Bot.Builder;
@@ -20,7 +21,7 @@ namespace WomanDayBot
   {
     private readonly ILogger<WomanDayBotBot> _logger;
     private readonly WomanDayBotAccessors _accessors;
-    private readonly GreetingsDialog _greetingsDialog;
+    private readonly MainDialogSet _mainDialogSet;
     private readonly UserState _userState;
     private readonly ConversationState _conversationState;
     private readonly ICardService _cardService;
@@ -36,56 +37,69 @@ namespace WomanDayBot
     {
       _logger = loggerFactory.CreateLogger<WomanDayBotBot>();
       _accessors = womanDayBotAccessors ?? throw new ArgumentNullException(nameof(womanDayBotAccessors));
-      _greetingsDialog = new GreetingsDialog(_accessors.DialogStateAccessor);
       _userState = userState ?? throw new ArgumentNullException(nameof(userState));
       _conversationState = conversationState ?? throw new ArgumentNullException(nameof(conversationState));
       _cardService = cardService ?? throw new ArgumentNullException(nameof(cardService));
       _orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
+
+      _mainDialogSet = new MainDialogSet(_accessors.DialogStateAccessor);
     }
 
     public async Task OnTurnAsync(ITurnContext turnContext, CancellationToken cancellationToken)
     {
       // Retrieve user data from state.
       var userData = await _accessors.UserDataAccessor.GetAsync(turnContext, () => new UserData(), cancellationToken);
+      var category = await _accessors.OrderCategoryAccessor.GetAsync(turnContext, () => OrderCategory.None, cancellationToken);
 
       // Establish context for our dialog from the turn context.
-      var _dialogContext = await _greetingsDialog.CreateContextAsync(turnContext, cancellationToken);
+      var dialogContext = await _mainDialogSet.CreateContextAsync(turnContext, cancellationToken);
 
-      if (_dialogContext.ActiveDialog == null)
+      var dialogTurnResult = await dialogContext.ContinueDialogAsync(cancellationToken);
+
+      if (dialogTurnResult.Status == DialogTurnStatus.Empty)
       {
         if (string.IsNullOrEmpty(userData.Name) || string.IsNullOrEmpty(userData.Room))
         {
-          await _dialogContext.BeginDialogAsync(GreetingsDialog.MainDialog, null, cancellationToken);
+          await dialogContext.BeginDialogAsync(MainDialogSet.GreetingDialogId, null, cancellationToken);
         }
         else
         {
-          await this.TryRegisterOrderAsync(_dialogContext, userData);
-
-          if (turnContext.Activity.Type == ActivityTypes.Message)
+          // Register order
+          var success = await this.TryRegisterOrderAsync(dialogContext.Context.Activity.Value, userData, cancellationToken);
+          if (success)
           {
-            await this.SendCardsAsync(turnContext, cancellationToken, _dialogContext);
+            await dialogContext.Context.SendActivityAsync("Заказ принят.", cancellationToken: cancellationToken);
+          }
+          else
+          {
+            await dialogContext.Context.SendActivityAsync($"Добро пожаловать, {userData.Name} из {userData.Room}.", cancellationToken: cancellationToken);
+            await dialogContext.BeginDialogAsync(MainDialogSet.CategoryChooseDialogId, null, cancellationToken);
           }
         }
       }
-      else
+      else if (dialogTurnResult.Status == DialogTurnStatus.Complete && dialogTurnResult.Result is UserData)
       {
-        var dialogTurnResult = await _dialogContext.ContinueDialogAsync(cancellationToken);
-        if (dialogTurnResult.Status == DialogTurnStatus.Complete)
-        {
-          userData = (UserData)dialogTurnResult.Result;
+        userData = (UserData)dialogTurnResult.Result;
 
-          await _accessors.UserDataAccessor.SetAsync(
-              turnContext,
-              userData,
-              cancellationToken);
+        await _accessors.UserDataAccessor.SetAsync(
+          turnContext,
+          userData,
+          cancellationToken);
 
-          await this.TryRegisterOrderAsync(_dialogContext, userData);
+        await dialogContext.Context.SendActivityAsync($"Добро пожаловать, {userData.Name} из {userData.Room}.", cancellationToken: cancellationToken);
+        await dialogContext.BeginDialogAsync(MainDialogSet.CategoryChooseDialogId, null, cancellationToken);
+      }
+      else if (dialogTurnResult.Status == DialogTurnStatus.Complete && dialogTurnResult.Result is OrderCategory)
+      {
+        category = (OrderCategory)dialogTurnResult.Result;
 
-          if (turnContext.Activity.Type == ActivityTypes.Message)
-          {
-            await this.SendCardsAsync(turnContext, cancellationToken, _dialogContext);
-          }
-        }
+        await _accessors.OrderCategoryAccessor.SetAsync(
+          turnContext,
+          category,
+          cancellationToken);
+
+        // Show menu
+        await this.ShowMenuAsync(dialogContext, category, cancellationToken);
       }
 
       // Persist any changes to storage.
@@ -94,15 +108,16 @@ namespace WomanDayBot
     }
 
     private async Task<bool> TryRegisterOrderAsync(
-      DialogContext dialogContext,
-      UserData userData)
+      object value,
+      UserData userData,
+      CancellationToken cancellationToken)
     {
-      if (dialogContext.Context.Activity.Value == null)
+      if (value == null)
       {
         return false;
       }
 
-      var order = JsonConvert.DeserializeObject<Order>(dialogContext.Context.Activity.Value.ToString());
+      var order = JsonConvert.DeserializeObject<Order>(value.ToString());
       order.Id = Guid.NewGuid();
       order.RequestTime = DateTime.Now;
       order.UserData = userData;
@@ -113,18 +128,25 @@ namespace WomanDayBot
       return true;
     }
 
-    private async Task SendCardsAsync(
-      ITurnContext turnContext,
-      CancellationToken cancellationToken,
-      DialogContext dialogContext)
+    private async Task ShowMenuAsync(
+      DialogContext dialogContext,
+      OrderCategory category,
+      CancellationToken cancellationToken)
     {
-      // Add the card to our reply.
-      var reply = turnContext.Activity.CreateReply();
+      var attachments = await _cardService.CreateAttachmentsAsync(category);
+      if (attachments.Any())
+      {
+        var reply = dialogContext.Context.Activity.CreateReply();
 
-      reply.AttachmentLayout = AttachmentLayoutTypes.Carousel;
-      reply.Attachments = await _cardService.CreateAttachmentsAsync();
+        reply.AttachmentLayout = AttachmentLayoutTypes.Carousel;
+        reply.Attachments = attachments;
 
-      await dialogContext.Context.SendActivityAsync(reply, cancellationToken);
+        await dialogContext.Context.SendActivityAsync(reply, cancellationToken);
+      }
+      else
+      {
+        await dialogContext.Context.SendActivityAsync("В этой категории нет элементов.", cancellationToken: cancellationToken);
+      }
     }
   }
 }

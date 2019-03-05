@@ -1,8 +1,8 @@
 ﻿namespace WomanDayBot.Models
 {
-  public enum OrderType
+  public enum OrderType : long
   {
-    Champaine = 0,
-    Coffee = 1
+    Champaine = 1,
+    Coffee = 2
   }
 }
