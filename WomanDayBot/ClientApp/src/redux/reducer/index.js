@@ -15,7 +15,6 @@ export const actionCreators = {
   },
 
   updateOrder: (orderId, isComplete) => async (dispatch, getState) => {
-    // dispatch({ type: REQUEST_ORDERS });
     let state = getState();
     let { orders } = state.orders;
     const index = orders.findIndex(obj => obj.orderId === orderId);

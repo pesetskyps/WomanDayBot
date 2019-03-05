@@ -3,13 +3,14 @@ import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 
 import { actionCreators } from '../redux/reducer/index';
+import './index.css'
 
 class FetchData extends Component {
   componentWillMount() {
     this.props.requestOrders();
   }
 
-  componentWillReceiveProps(){
+  componentWillReceiveProps() {
     this.props.requestOrders();
   }
 
@@ -18,13 +19,13 @@ class FetchData extends Component {
   }
 
   template = (orders) => {
-    return <table className='responsive-table'>
+    return <table>
       <thead>
         <tr>
           <th>Order type</th>
           <th>Client name</th>
           <th>Room</th>
-          <th></th>
+          <th>Action button</th>
         </tr>
       </thead>
       <tbody>
@@ -35,7 +36,7 @@ class FetchData extends Component {
             <td>{order.userData.room}</td>
             <td>
               <button
-                className="btn waves-effect waves-light"
+                className={order.isComplete ? "btn waves-effect waves-light red" : "btn waves-effect waves-light"}
                 type="button"
                 name="action"
                 onClick={(event) => this.handleClick(event, order.orderId, !order.isComplete)}>
@@ -48,9 +49,16 @@ class FetchData extends Component {
     </table>
   }
 
+  layout = (orders) => {
+    return <div class="row" id='row'>
+      <div class="col s6" id="incompleted-orders"><span>Incompleted</span>{this.template(orders.filter(x => !x.isComplete))}</div>
+      <div class="col s6" id="incompleted-orders"><span>Completed</span>{this.template(orders.filter(x => x.isComplete))}</div>
+    </div>
+  }
+
   render() {
     const { orders, className } = this.props;
-    const ordersList = orders.length ? this.template(orders) : <div className={className}>
+    const ordersList = orders.length ? this.layout(orders) : <div className={className}>
       <span className="blue-text text-darken-2">You don't have any orders.</span>
     </div>;
     return (

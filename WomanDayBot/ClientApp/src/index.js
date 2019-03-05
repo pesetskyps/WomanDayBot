@@ -5,6 +5,7 @@ import registerServiceWorker from './registerServiceWorker';
 
 import App from './App';
 import configureStore from '../src/redux/store/index';
+import './index.css';
 
 const initialState = window.initialReduxState;
 const store = configureStore(initialState);

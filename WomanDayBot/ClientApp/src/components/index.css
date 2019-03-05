@@ -1,0 +1,12 @@
+#incompleted-orders{
+  overflow-y: scroll;
+}
+
+#incompleted-orders span{
+    font-size: 2em;
+}
+
+#row{
+    height: 100%;
+    margin-bottom: 0;
+}

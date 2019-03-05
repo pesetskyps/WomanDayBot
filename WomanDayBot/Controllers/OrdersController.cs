@@ -22,7 +22,7 @@ namespace WomanDayBot.Web.Controllers
     [HttpGet("[action]")]
     public async Task<IEnumerable<Order>> GetOrdersAsync()
     {
-      IEnumerable<Order> orders = await _orderRepository.GetItemsAsync(x => !x.IsComplete);
+      IEnumerable<Order> orders = await _orderRepository.GetItemsAsync();
       return orders;
     }
 

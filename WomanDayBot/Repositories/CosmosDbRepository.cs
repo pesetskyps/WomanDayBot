@@ -48,19 +48,24 @@ namespace WomanDayBot.Repositories
 
     public async Task<IEnumerable<T>> GetItemsAsync()
     {
-      IDocumentQuery<T> query = _client
-        .CreateDocumentQuery<T>(
-          UriFactory.CreateDocumentCollectionUri(_databaseId, _collectionId),
-          new FeedOptions { MaxItemCount = -1 })
-        .AsDocumentQuery();
-
-      var results = new List<T>();
-      while (query.HasMoreResults)
+      using (var client = new DocumentClient(_configurationOptions.CosmosDBEndpoint, _configurationOptions.AuthKey))
       {
-        results.AddRange(await query.ExecuteNextAsync<T>());
-      }
+        var link = UriFactory.CreateDocumentCollectionUri(_databaseId, _collectionId);
+        var query = client.CreateDocumentQuery<T>(
+            link,
+            new FeedOptions()
+            {
+              EnableCrossPartitionQuery = true
+            })
+          .AsDocumentQuery();
 
-      return results;
+        var results = new List<T>();
+        while (query.HasMoreResults)
+        {
+          results.AddRange(await query.ExecuteNextAsync<T>());
+        }
+        return results;
+      }
     }
 
     public async Task<IEnumerable<T>> GetItemsAsync(Expression<Func<T, bool>> predicate)
@@ -74,6 +79,7 @@ namespace WomanDayBot.Repositories
                             {
                               EnableCrossPartitionQuery = true
                             })
+                         .Where(predicate)
                         .AsDocumentQuery();
 
         var results = new List<T>();
@@ -92,16 +98,18 @@ namespace WomanDayBot.Repositories
 
     public async Task<Document> UpdateItemAsync(string id, Order item)
     {
-      var link = UriFactory.CreateDocumentCollectionUri(_databaseId, _collectionId);
-      Document doc = _client.CreateDocumentQuery<Document>(link, new FeedOptions { EnableCrossPartitionQuery = true })
-                             .Where(r => r.Id == id)
-                             .AsEnumerable()
-                             .SingleOrDefault();
+      using (var client = new DocumentClient(_configurationOptions.CosmosDBEndpoint, _configurationOptions.AuthKey))
+      {
+        var link = UriFactory.CreateDocumentCollectionUri(_databaseId, _collectionId);
+        Document doc = client.CreateDocumentQuery<Document>(link, new FeedOptions { EnableCrossPartitionQuery = true })
+          .Where(r => r.Id == id).AsEnumerable().SingleOrDefault();
 
-      doc.SetPropertyValue("IsComplete", item.IsComplete);
+        doc.SetPropertyValue("IsComplete", item.IsComplete);
 
-      Document updated = await _client.ReplaceDocumentAsync(doc);
-      return updated;
+
+        Document updated = await client.ReplaceDocumentAsync(doc);
+        return updated;
+      }
     }
 
     public async Task DeleteItemAsync(string id)
