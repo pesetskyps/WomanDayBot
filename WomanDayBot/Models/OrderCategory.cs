@@ -6,6 +6,7 @@
     Alcohol = 2,
     NonAlcohol = 3,
     Food = 4,
-    Sweet = 5
+    Sweet = 5,
+    Other = 6
   }
 }

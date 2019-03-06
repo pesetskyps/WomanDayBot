@@ -12,5 +12,6 @@ namespace WomanDayBot.Models
     public bool IsComplete { get; set; }
     public UserData UserData { get; set; }
     public DateTime RequestTime { get; set; }
+    public string Comment { get; set; }
   }
 }
