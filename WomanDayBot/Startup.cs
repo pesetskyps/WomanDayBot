@@ -3,6 +3,8 @@ using System.IO;
 using System.Linq;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SpaServices.ReactDevelopmentServer;
 using Microsoft.Bot.Builder;
 using Microsoft.Bot.Builder.Azure;
 using Microsoft.Bot.Builder.Dialogs;
@@ -30,7 +32,7 @@ namespace WomanDayBot
       _isProduction = env.IsProduction();
       _logger = loggerFactory.CreateLogger<WomanDayBotBot>();
 
-      this.Configuration = new ConfigurationBuilder()
+      Configuration = new ConfigurationBuilder()
         .SetBasePath(env.ContentRootPath)
         .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
         .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true)
@@ -131,14 +133,51 @@ namespace WomanDayBot
           OrderCategoryAccessor = conversationState.CreateProperty<OrderCategory>("WomanDayBot.OrderCategory")
         };
       });
+
+      services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
+
+      // In production, the React files will be served from this directory
+      services.AddSpaStaticFiles(configuration =>
+      {
+        configuration.RootPath = "ClientApp/build";
+      });
     }
 
-    public void Configure(IApplicationBuilder app)
+    public void Configure(IApplicationBuilder app, IHostingEnvironment env)
     {
+      if (env.IsDevelopment())
+      {
+        app.UseDeveloperExceptionPage();
+      }
+      else
+      {
+        app.UseExceptionHandler("/Error");
+        app.UseHsts();
+      }
+
       app
         .UseDefaultFiles()
         .UseStaticFiles()
-        .UseBotFramework();
+        .UseBotFramework()
+        .UseHttpsRedirection()
+        .UseSpaStaticFiles();
+
+      app.UseMvc(routes =>
+      {
+        routes.MapRoute(
+                  name: "default",
+                  template: "{controller}/{action=Index}/{id?}");
+      });
+
+      app.UseSpa(spa =>
+      {
+        spa.Options.SourcePath = "ClientApp";
+
+        if (env.IsDevelopment())
+        {
+          spa.UseReactDevelopmentServer(npmScript: "start");
+        }
+      });
     }
   }
 }

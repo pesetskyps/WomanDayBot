@@ -8,15 +8,18 @@ using Microsoft.Azure.Documents;
 using Microsoft.Azure.Documents.Client;
 using Microsoft.Azure.Documents.Linq;
 using Microsoft.Bot.Builder.Azure;
+using WomanDayBot.Models;
 
 namespace WomanDayBot.Repositories
 {
   public class CosmosDbRepository<T> where T : class
   {
-    private readonly CosmosDbStorageOptions _configurationOptions;
-    private readonly string _collectionId;
-    private readonly string _databaseId;
+    internal readonly CosmosDbStorageOptions _configurationOptions;
+    internal readonly string _collectionId;
+    internal readonly string _databaseId;
     private readonly DocumentClient _client;
+
+    public object DefaultOptions { get; private set; }
 
     public CosmosDbRepository(
       CosmosDbStorageOptions configurationOptions,
@@ -29,59 +32,63 @@ namespace WomanDayBot.Repositories
       _databaseId = databaseId;
     }
 
-    public async Task<T> GetItemAsync(string id)
+    public async Task<Order> GetItemAsync(string id)
     {
-      try
+      var link = UriFactory.CreateDocumentCollectionUri(_databaseId, _collectionId);
+      var query = _client.CreateDocumentQuery<Order>(link, new SqlQuerySpec()
       {
-        Document document = await _client.ReadDocumentAsync(UriFactory.CreateDocumentUri(_databaseId, _collectionId, id));
-        return (T)(dynamic)document;
-      }
-      catch (DocumentClientException e)
-      {
-        if (e.StatusCode == HttpStatusCode.NotFound)
-        {
-          return null;
-        }
-        else
-        {
-          throw;
-        }
-      }
+        QueryText = "SELECT * FROM Orders f WHERE (f.orderId = @id)",
+        Parameters = new SqlParameterCollection()
+                    {
+                        new SqlParameter("@id", id)
+                    }
+      }, new FeedOptions { EnableCrossPartitionQuery = true });
+      return query.ToList().SingleOrDefault();
     }
 
     public async Task<IEnumerable<T>> GetItemsAsync()
     {
-      IDocumentQuery<T> query = _client
-        .CreateDocumentQuery<T>(
-          UriFactory.CreateDocumentCollectionUri(_databaseId, _collectionId),
-          new FeedOptions { MaxItemCount = -1 })
-        .AsDocumentQuery();
-
-      var results = new List<T>();
-      while (query.HasMoreResults)
+      using (var client = new DocumentClient(_configurationOptions.CosmosDBEndpoint, _configurationOptions.AuthKey))
       {
-        results.AddRange(await query.ExecuteNextAsync<T>());
-      }
+        var link = UriFactory.CreateDocumentCollectionUri(_databaseId, _collectionId);
+        var query = client.CreateDocumentQuery<T>(
+            link,
+            new FeedOptions()
+            {
+              EnableCrossPartitionQuery = true
+            })
+          .AsDocumentQuery();
 
-      return results;
+        var results = new List<T>();
+        while (query.HasMoreResults)
+        {
+          results.AddRange(await query.ExecuteNextAsync<T>());
+        }
+        return results;
+      }
     }
 
     public async Task<IEnumerable<T>> GetItemsAsync(Expression<Func<T, bool>> predicate)
     {
-      IDocumentQuery<T> query = _client
-        .CreateDocumentQuery<T>(
-          UriFactory.CreateDocumentCollectionUri(_databaseId, _collectionId),
-          new FeedOptions { MaxItemCount = -1 })
-        .Where(predicate)
-        .AsDocumentQuery();
-
-      var results = new List<T>();
-      while (query.HasMoreResults)
+      using (var client = new DocumentClient(_configurationOptions.CosmosDBEndpoint, _configurationOptions.AuthKey))
       {
-        results.AddRange(await query.ExecuteNextAsync<T>());
-      }
+        var link = UriFactory.CreateDocumentCollectionUri(_databaseId, _collectionId);
+        var query = client.CreateDocumentQuery<T>(
+                            link,
+                            new FeedOptions()
+                            {
+                              EnableCrossPartitionQuery = true
+                            })
+                         .Where(predicate)
+                        .AsDocumentQuery();
 
-      return results;
+        var results = new List<T>();
+        while (query.HasMoreResults)
+        {
+          results.AddRange(await query.ExecuteNextAsync<T>());
+        }
+        return results;
+      }
     }
 
     public async Task<Document> CreateItemAsync(T item)
@@ -91,7 +98,7 @@ namespace WomanDayBot.Repositories
 
     public async Task<Document> UpdateItemAsync(string id, T item)
     {
-      return await _client.ReplaceDocumentAsync(UriFactory.CreateDocumentUri(_databaseId, _collectionId, id), item);
+      return await _client.ReplaceDocumentAsync(UriFactory.CreateDocumentCollectionUri(_databaseId, _collectionId), item);
     }
 
     public async Task DeleteItemAsync(string id)
