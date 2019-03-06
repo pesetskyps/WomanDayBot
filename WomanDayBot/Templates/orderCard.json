@@ -2,46 +2,35 @@
   "type": "AdaptiveCard",
   "body": [
     {
+      "type": "TextBlock",
+      "size": "Medium",
+      "weight": "Bolder",
+      "text": "__TitleText__"
+    },
+    {
+      "type": "TextBlock",
+      "text": "__Description__",
+      "wrap": true
+    },
+    {
       "type": "Image",
+      "horizontalAlignment": "Center",
+      "separator": true,
       "url": "__ImageUrl__"
     },
     {
-      "type": "ColumnSet",
-      "columns": [
-        {
-          "type": "Column",
-          "items": [
-            {
-              "type": "TextBlock",
-              "spacing": "None",
-              "size": "ExtraLarge",
-              "weight": "Bolder",
-              "text": "__TitleText__"
-            },
-            {
-              "type": "TextBlock",
-              "spacing": "None",
-              "text": "4.2 ★★★☆ (93) · $$",
-              "isSubtle": true
-            },
-            {
-              "type": "TextBlock",
-              "size": "Small",
-              "text": "__Description__",
-              "wrap": true
-            }
-          ],
-          "width": 2
-        }
-      ]
+      "type": "Input.Text",
+      "placeholder": "Что-то изменить/добавить?",
+      "style": "text",
+      "isMultiline": true,
+      "maxLength": 0,
+      "id": "Comment"
     }
   ],
   "actions": [
     {
       "type": "Action.Submit",
-      "id": "__OrderType__",
       "title": "Заказать",
-      "iconUrl": "https://cdn1.iconfinder.com/data/icons/shoping-cart/84/ShoppingCart22-256.png",
       "data": {
         "orderType": "__OrderType__",
         "orderCategory": "__OrderCategory__"

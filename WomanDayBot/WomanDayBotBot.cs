@@ -49,7 +49,6 @@ namespace WomanDayBot
     {
       // Retrieve user data from state.
       var userData = await _accessors.UserDataAccessor.GetAsync(turnContext, () => new UserData(), cancellationToken);
-      var category = await _accessors.OrderCategoryAccessor.GetAsync(turnContext, () => OrderCategory.None, cancellationToken);
 
       // Establish context for our dialog from the turn context.
       var dialogContext = await _mainDialogSet.CreateContextAsync(turnContext, cancellationToken);
@@ -60,46 +59,44 @@ namespace WomanDayBot
       {
         if (string.IsNullOrEmpty(userData.Name) || string.IsNullOrEmpty(userData.Room))
         {
+          // Start greeting dialog
           await dialogContext.BeginDialogAsync(MainDialogSet.GreetingDialogId, null, cancellationToken);
+        }
+        else if (turnContext.Activity.Value == null)
+        {
+          // Start category choose dialog
+          await turnContext.SendActivityAsync($"Добро пожаловать, {userData.Name} из {userData.Room}.", cancellationToken: cancellationToken);
+          await dialogContext.BeginDialogAsync(MainDialogSet.CategoryChooseDialogId, null, cancellationToken);
         }
         else
         {
           // Register order
-          var success = await this.TryRegisterOrderAsync(dialogContext.Context.Activity.Value, userData, cancellationToken);
-          if (success)
-          {
-            await dialogContext.Context.SendActivityAsync("Заказ принят.", cancellationToken: cancellationToken);
-          }
-          else
-          {
-            await dialogContext.Context.SendActivityAsync($"Добро пожаловать, {userData.Name} из {userData.Room}.", cancellationToken: cancellationToken);
-            await dialogContext.BeginDialogAsync(MainDialogSet.CategoryChooseDialogId, null, cancellationToken);
-          }
+          await this.RegisterOrderAsync(turnContext.Activity.Value, userData, cancellationToken);
+          await turnContext.SendActivityAsync("Заказ принят.", cancellationToken: cancellationToken);
         }
       }
-      else if (dialogTurnResult.Status == DialogTurnStatus.Complete && dialogTurnResult.Result is UserData)
+      else if (dialogTurnResult.Status == DialogTurnStatus.Complete)
       {
-        userData = (UserData)dialogTurnResult.Result;
+        if (dialogTurnResult.Result is UserData)
+        {
+          // Greeting dialog is completed
+          userData = (UserData)dialogTurnResult.Result;
 
-        await _accessors.UserDataAccessor.SetAsync(
-          turnContext,
-          userData,
-          cancellationToken);
+          await _accessors.UserDataAccessor.SetAsync(
+            turnContext,
+            userData,
+            cancellationToken);
 
-        await dialogContext.Context.SendActivityAsync($"Добро пожаловать, {userData.Name} из {userData.Room}.", cancellationToken: cancellationToken);
-        await dialogContext.BeginDialogAsync(MainDialogSet.CategoryChooseDialogId, null, cancellationToken);
-      }
-      else if (dialogTurnResult.Status == DialogTurnStatus.Complete && dialogTurnResult.Result is OrderCategory)
-      {
-        category = (OrderCategory)dialogTurnResult.Result;
+          await turnContext.SendActivityAsync($"Добро пожаловать, {userData.Name} из {userData.Room}.", cancellationToken: cancellationToken);
+          await dialogContext.BeginDialogAsync(MainDialogSet.CategoryChooseDialogId, null, cancellationToken);
+        }
+        else if (dialogTurnResult.Result is OrderCategory)
+        {
+          // Category choose dialog is completed
+          var category = (OrderCategory)dialogTurnResult.Result;
 
-        await _accessors.OrderCategoryAccessor.SetAsync(
-          turnContext,
-          category,
-          cancellationToken);
-
-        // Show menu
-        await this.ShowMenuAsync(dialogContext, category, cancellationToken);
+          await this.ShowMenuAsync(turnContext, category, cancellationToken);
+        }
       }
 
       // Persist any changes to storage.
@@ -107,16 +104,11 @@ namespace WomanDayBot
       await _accessors.ConversationState.SaveChangesAsync(turnContext, false, cancellationToken);
     }
 
-    private async Task<bool> TryRegisterOrderAsync(
+    private async Task RegisterOrderAsync(
       object value,
       UserData userData,
       CancellationToken cancellationToken)
     {
-      if (value == null)
-      {
-        return false;
-      }
-
       var order = JsonConvert.DeserializeObject<Order>(value.ToString());
       order.Id = Guid.NewGuid();
       order.RequestTime = DateTime.Now;
@@ -124,28 +116,26 @@ namespace WomanDayBot
 
       var orderDoc = await _orderRepository.CreateItemAsync(order);
       _logger.LogDebug("Created {orderDoc}", orderDoc);
-
-      return true;
     }
 
     private async Task ShowMenuAsync(
-      DialogContext dialogContext,
+      ITurnContext turnContext,
       OrderCategory category,
       CancellationToken cancellationToken)
     {
       var attachments = await _cardService.CreateAttachmentsAsync(category);
       if (attachments.Any())
       {
-        var reply = dialogContext.Context.Activity.CreateReply();
+        var reply = turnContext.Activity.CreateReply();
 
         reply.AttachmentLayout = AttachmentLayoutTypes.Carousel;
         reply.Attachments = attachments;
 
-        await dialogContext.Context.SendActivityAsync(reply, cancellationToken);
+        await turnContext.SendActivityAsync(reply, cancellationToken);
       }
       else
       {
-        await dialogContext.Context.SendActivityAsync("В этой категории нет элементов.", cancellationToken: cancellationToken);
+        await turnContext.SendActivityAsync("В этой категории нет элементов.", cancellationToken: cancellationToken);
       }
     }
   }

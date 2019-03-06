@@ -15,8 +15,6 @@ namespace WomanDayBot
 
     public IStatePropertyAccessor<UserData> UserDataAccessor { get; set; }
 
-    public IStatePropertyAccessor<OrderCategory> OrderCategoryAccessor { get; set; }
-
     public WomanDayBotAccessors(UserState userState, ConversationState conversationState)
     {
       this.UserState = userState ?? throw new ArgumentNullException(nameof(userState));
