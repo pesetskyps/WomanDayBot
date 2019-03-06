@@ -7,5 +7,6 @@
   {
     public string Name { get; set; }
     public string Room { get; set; }
+    public bool DidBotWelcomeUser { get; set; }
   }
 }

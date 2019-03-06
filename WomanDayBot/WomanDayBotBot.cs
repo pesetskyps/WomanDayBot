@@ -50,6 +50,24 @@ namespace WomanDayBot
       // Retrieve user data from state.
       var userData = await _accessors.UserDataAccessor.GetAsync(turnContext, () => new UserData(), cancellationToken);
 
+      if (userData.DidBotWelcomeUser == false)
+      {
+        userData.DidBotWelcomeUser = true;
+
+        await turnContext.SendActivityAsync("Привет, красоточка. Пообщаемся?", cancellationToken: cancellationToken);
+
+        await _accessors.UserDataAccessor.SetAsync(
+          turnContext,
+          userData,
+          cancellationToken);
+
+        // Persist any changes to storage.
+        await _accessors.UserState.SaveChangesAsync(turnContext, false, cancellationToken);
+        await _accessors.ConversationState.SaveChangesAsync(turnContext, false, cancellationToken);
+
+        return;
+      }
+
       // Establish context for our dialog from the turn context.
       var dialogContext = await _mainDialogSet.CreateContextAsync(turnContext, cancellationToken);
 
