@@ -83,14 +83,14 @@ namespace WomanDayBot
         else if (turnContext.Activity.Value == null)
         {
           // Start category choose dialog
-          await turnContext.SendActivityAsync($"Добро пожаловать, {userData.Name} из {userData.Room}.", cancellationToken: cancellationToken);
+          await turnContext.SendActivityAsync($"Хаю хай {userData.Name} из {userData.Room}.", cancellationToken: cancellationToken);
           await dialogContext.BeginDialogAsync(MainDialogSet.CategoryChooseDialogId, null, cancellationToken);
         }
         else
         {
           // Register order
           await this.RegisterOrderAsync(turnContext.Activity.Value, userData, cancellationToken);
-          await turnContext.SendActivityAsync("Заказ принят.", cancellationToken: cancellationToken);
+          await turnContext.SendActivityAsync("Мы уже летим, красотка. брымбрымбрым....", cancellationToken: cancellationToken);
         }
       }
       else if (dialogTurnResult.Status == DialogTurnStatus.Complete)

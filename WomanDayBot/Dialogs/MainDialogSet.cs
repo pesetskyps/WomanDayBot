@@ -61,7 +61,7 @@ namespace WomanDayBot.Dialogs
         NamePromt,
         new PromptOptions
         {
-          Prompt = MessageFactory.Text("Не то, чтобы я хотел подкатить, но как тебя зовут. Принцесса?"),
+          Prompt = MessageFactory.Text("Не то, чтобы я хотел подкатить, но как тебя зовут, Принцесса?"),
           RetryPrompt = MessageFactory.Text("Да ладно, ну скажи имечко?")
         },
         cancellationToken);
@@ -80,7 +80,7 @@ namespace WomanDayBot.Dialogs
       if (!promptContext.Recognized.Succeeded)
       {
         await promptContext.Context.SendActivityAsync(
-          "Извините, но я вас не понял. Пожалуйста, введите своё имя.",
+          "Ты че-то ввела не те букавки.",
           cancellationToken: cancellationToken);
 
         return false;
@@ -97,7 +97,7 @@ namespace WomanDayBot.Dialogs
 
       await promptContext.Context.SendActivitiesAsync(new[]
       {
-        MessageFactory.Text("К сожалению, я не могу распознать ваше имя."),
+        MessageFactory.Text("Введи имечко."),
         promptContext.Options.RetryPrompt
       },
       cancellationToken);
