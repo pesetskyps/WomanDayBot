@@ -110,7 +110,7 @@ namespace WomanDayBot
       CancellationToken cancellationToken)
     {
       var order = JsonConvert.DeserializeObject<Order>(value.ToString());
-      order.Id = Guid.NewGuid();
+      order.OrderId = Guid.NewGuid();
       order.RequestTime = DateTime.Now;
       order.UserData = userData;
 

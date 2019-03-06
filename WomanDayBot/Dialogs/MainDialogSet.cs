@@ -57,24 +57,14 @@ namespace WomanDayBot.Dialogs
       WaterfallStepContext stepContext,
       CancellationToken cancellationToken = default(CancellationToken))
     {
-          var message = stepContext.Context.Activity;
-
-            if (message.Type == ActivityTypes.ConversationUpdate)
-            {
-                return null;
-            }
-
-
-            return await stepContext.PromptAsync(
+      return await stepContext.PromptAsync(
         NamePromt,
         new PromptOptions
         {
-            Prompt = MessageFactory.Text("Не то, чтобы я хотел подкатить, но как тебя зовут. Принцесса?"),
-            RetryPrompt = MessageFactory.Text("Да ладно, ну скажи имечко?")
+          Prompt = MessageFactory.Text("Не то, чтобы я хотел подкатить, но как тебя зовут. Принцесса?"),
+          RetryPrompt = MessageFactory.Text("Да ладно, ну скажи имечко?")
         },
         cancellationToken);
-
-
     }
 
     /// <summary>
