@@ -31,7 +31,8 @@ class FetchData extends Component {
           <th>Order type</th>
           <th>Client name</th>
           <th>Room</th>
-          <th>Request time</th>
+          <th>Comment</th>
+          <th>Time</th>
           <th>Action button</th>
         </tr>
       </thead>
@@ -42,6 +43,7 @@ class FetchData extends Component {
             <td>{order.orderType}</td>
             <td>{order.userData.name}</td>
             <td>{order.userData.room}</td>
+            <td>{order.comment}</td>
             <td>{this.formatTime(order.requestTime)}</td>
             <td>
               <button
