@@ -5,7 +5,8 @@ namespace WomanDayBot.Models
 {
   public class Order
   {
-    public Guid Id { get; set; }
+    [JsonProperty(PropertyName = "id")]
+    public Guid DocumentId { get; set; }
     [JsonProperty(PropertyName = "orderId")]
     public Guid OrderId { get; set; }
     public string OrderType { get; set; }
