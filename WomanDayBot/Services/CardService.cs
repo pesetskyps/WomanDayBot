@@ -47,7 +47,7 @@ namespace WomanDayBot.Services
         cardConfigurations = cardConfigurations.Where(x => categoryName.Equals(x.OrderCategory, StringComparison.OrdinalIgnoreCase));
       }
 
-      foreach (var configuration in cardConfigurations)
+      foreach (var configuration in cardConfigurations.Take(10))
       {
         var card = adaptiveCardTemplate;
         card = card.Replace(@"__TitleText__", configuration.TitleText);
